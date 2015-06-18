@@ -9,16 +9,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TopTracksAdapter  extends BaseAdapter implements HttpAsyncRequest.AsyncResponse {
+public class TopTracksAdapter extends BaseAdapter implements HttpAsyncRequest.AsyncResponse {
     public String TAG = "TopTracksAdapter";
-
     public List<ItunesSong> songs = new ArrayList<ItunesSong>();
-
+    private Context mContext;
     private LayoutInflater inflater;
+
+    public TopTracksAdapter(Context context) {
+        mContext = context;
+        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        new HttpAsyncRequest(this).execute("https://itunes.apple.com/us/rss/topsongs/limit=10/json");
+    }
 
     @Override
     public int getCount() {
@@ -53,38 +59,12 @@ public class TopTracksAdapter  extends BaseAdapter implements HttpAsyncRequest.A
 
         holder.title.setText(song.name.label);
 
-        if (!song.image.isEmpty())
+        if (!song.image.isEmpty()) {
             holder.thumbnail.setTag(song.image.get(0).label);
-
-        /*if (context != null) {
-            WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-            Display display = wm.getDefaultDisplay();
-            Point size = new Point();
-            display.getSize(size);
-            int width = size.x;
-            int height = size.y;
-
-            // Log.d(TAG, "WIDTH: " + Integer.toString(width) + " - HEIGHT: " + Integer.toString(height));
-
-            int padding = Math.round((float) 8 * mDensity);
-            width = width - padding * 2;
-
-            if (height >= width) {
-                height = Math.round((width / 16) * 9);
-            } else {
-                width = Math.round(width / 2);
-                height = Math.round((width / 16) * 9);
-            }
-
-            Picasso.with(context).load(item.thumbnailUrl).resize(width, height).placeholder(R.drawable.logo).resize(width, height).error(R.drawable.logo).resize(width, height).centerCrop().into(holder.thumbnail);
-        }*/
+            Picasso.with(mContext).load(song.image.get(0).label.replace("55x55", "400x400")).resize(400, 400).into(holder.thumbnail);
+        }
 
         return convertView;
-    }
-
-    public TopTracksAdapter(Context context) {
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        new HttpAsyncRequest(this).execute("https://itunes.apple.com/us/rss/topsongs/limit=10/json");
     }
 
     @Override
@@ -93,15 +73,11 @@ public class TopTracksAdapter  extends BaseAdapter implements HttpAsyncRequest.A
 
         songs = tracks.feed.entry;
         notifyDataSetChanged();
+    }
 
-        /*for (int i = 0; i < tracks.feed.entry.size(); i++) {
-            Log.d(TAG, "I " + Integer.toString(i) + ": " + tracks.feed.entry.get(i).name.label);
-
-            if (!tracks.feed.entry.get(i).image.isEmpty())
-                Log.d(TAG, "Image: " + tracks.feed.entry.get(i).image.get(0).label);
-        }
-
-        Log.d(TAG, "Results: " + tracks.feed.entry.size());*/
+    static class ViewHolder {
+        public TextView title;
+        public ImageView thumbnail;
     }
 
     private class ItunesTopTracks {
@@ -110,10 +86,5 @@ public class TopTracksAdapter  extends BaseAdapter implements HttpAsyncRequest.A
         class Feed {
             public List<ItunesSong> entry = new ArrayList<ItunesSong>();
         }
-    }
-
-    static class ViewHolder {
-        public TextView title;
-        public ImageView thumbnail;
     }
 }
