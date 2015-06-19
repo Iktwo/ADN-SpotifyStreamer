@@ -8,6 +8,11 @@
     <GridView
         android:id="@+id/gridView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"
+        android:gravity="center"
+        android:verticalSpacing="8dp"
+        />
 
 </RelativeLayout>
