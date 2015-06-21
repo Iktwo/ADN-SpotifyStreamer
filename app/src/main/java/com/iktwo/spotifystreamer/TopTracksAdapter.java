@@ -1,6 +1,7 @@
 package com.iktwo.spotifystreamer;
 
 import android.content.Context;
+import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.github.florent37.picassopalette.PicassoPalette;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
@@ -43,12 +45,13 @@ public class TopTracksAdapter extends BaseAdapter implements HttpAsyncRequest.As
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
-        ItunesSong song = (ItunesSong) getItem(position);
+        final ViewHolder holder;
+        final ItunesSong song = (ItunesSong) getItem(position);
 
         if (convertView == null && inflater != null) {
             convertView = inflater.inflate(R.layout.top_tracks_delegate, parent, false);
             holder = new ViewHolder();
+            holder.background = convertView.findViewById(R.id.background);
             holder.title = (TextView) convertView.findViewById(R.id.textViewTitle);
             holder.thumbnail = (ImageView) convertView.findViewById(R.id.imageViewThumbnail);
 
@@ -60,8 +63,53 @@ public class TopTracksAdapter extends BaseAdapter implements HttpAsyncRequest.As
         holder.title.setText(song.name.label);
 
         if (!song.image.isEmpty()) {
+            /// TODO: find out best size to retrieve
+            String url = song.image.get(0).label.replace("55x55", "500x500");
             holder.thumbnail.setTag(song.image.get(0).label);
-            Picasso.with(mContext).load(song.image.get(0).label.replace("55x55", "400x400")).resize(400, 400).into(holder.thumbnail);
+            Picasso.with(mContext)
+                    .load(url)
+                    .into(holder.thumbnail,
+                            PicassoPalette.with(url, holder.thumbnail)
+                                    .use(PicassoPalette.Profile.VIBRANT)
+                                    .intoBackground(holder.background, PicassoPalette.Swatch.RGB)
+                                    .intoTextColor(holder.title, PicassoPalette.Swatch.TITLE_TEXT_COLOR)
+                                    .intoCallBack(
+                                            new PicassoPalette.CallBack() {
+                                                @Override
+                                                public void onPaletteLoaded(Palette palette) {
+                                                    Palette.Swatch s = palette.getVibrantSwatch();
+
+                                                    // If there is a vibrant color, do nothing
+                                                    if (s != null)
+                                                        return;
+
+                                                    for (int i = 0; i < 5; i++) {
+                                                        switch (i) {
+                                                            case 0:
+                                                                s = palette.getDarkVibrantSwatch();
+                                                                break;
+                                                            case 1:
+                                                                s = palette.getLightVibrantSwatch();
+                                                                break;
+                                                            case 2:
+                                                                s = palette.getMutedSwatch();
+                                                                break;
+                                                            case 3:
+                                                                s = palette.getDarkMutedSwatch();
+                                                                break;
+                                                            case 4:
+                                                                s = palette.getLightMutedSwatch();
+                                                                break;
+                                                        }
+
+                                                        if (s != null) {
+                                                            holder.background.setBackgroundColor(s.getRgb());
+                                                            holder.title.setTextColor(s.getTitleTextColor());
+                                                            return;
+                                                        }
+                                                    }
+                                                }
+                                            }));
         }
 
         return convertView;
@@ -78,6 +126,7 @@ public class TopTracksAdapter extends BaseAdapter implements HttpAsyncRequest.As
     static class ViewHolder {
         public TextView title;
         public ImageView thumbnail;
+        public View background;
     }
 
     private class ItunesTopTracks {

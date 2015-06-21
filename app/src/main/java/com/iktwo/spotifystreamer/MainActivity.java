@@ -1,27 +1,24 @@
 package com.iktwo.spotifystreamer;
 
-import android.support.v7.app.AppCompatActivity;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.GridView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TopTenTracksFragment.OnFragmentInteractionListener {
     public final String TAG = "MainActivity";
-
-    private GridView gridView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+    }
 
-        gridView = (GridView) findViewById(R.id.gridView);
-
-        TopTracksAdapter tt = new TopTracksAdapter(getApplicationContext());
-
-        gridView.setAdapter(tt);
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     @Override
@@ -44,5 +41,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+        Log.d(TAG, "onFragmentInteraction:" + uri.toString());
     }
 }
