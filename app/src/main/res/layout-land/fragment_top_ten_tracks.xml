@@ -1,6 +1,6 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" tools:context="com.iktwo.spotifystreamer.TopTenTracksFragment">
+    android:layout_height="match_parent" tools:context="com.iktwo.spotifystreamer.TopTracksFragment">
 
     <GridView
         android:id="@+id/gridView"
@@ -10,7 +10,7 @@
         android:stretchMode="columnWidth"
         android:gravity="center"
         android:columnWidth="90dp"
-        android:horizontalSpacing="2dp"
-        android:verticalSpacing="2dp"/>
+        android:horizontalSpacing="1dp"
+        android:verticalSpacing="1dp"/>
 
 </FrameLayout>

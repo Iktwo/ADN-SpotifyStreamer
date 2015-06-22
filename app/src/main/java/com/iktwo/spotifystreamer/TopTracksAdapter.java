@@ -25,7 +25,8 @@ public class TopTracksAdapter extends BaseAdapter implements HttpAsyncRequest.As
     public TopTracksAdapter(Context context) {
         mContext = context;
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        new HttpAsyncRequest(this).execute("https://itunes.apple.com/us/rss/topsongs/limit=10/json");
+        /// Store this on a DB and query if empty or last insertion is old
+        new HttpAsyncRequest(this).execute("https://itunes.apple.com/us/rss/topsongs/limit=30/json");
     }
 
     @Override
@@ -52,8 +53,9 @@ public class TopTracksAdapter extends BaseAdapter implements HttpAsyncRequest.As
             convertView = inflater.inflate(R.layout.top_tracks_delegate, parent, false);
             holder = new ViewHolder();
             holder.background = convertView.findViewById(R.id.background);
-            holder.title = (TextView) convertView.findViewById(R.id.textViewTitle);
-            holder.thumbnail = (ImageView) convertView.findViewById(R.id.imageViewThumbnail);
+            holder.title = (TextView) convertView.findViewById(R.id.text_view_title);
+            holder.artist = (TextView) convertView.findViewById(R.id.text_view_artist);
+            holder.thumbnail = (ImageView) convertView.findViewById(R.id.image_view_thumbnail);
 
             convertView.setTag(holder);
         } else {
@@ -61,10 +63,10 @@ public class TopTracksAdapter extends BaseAdapter implements HttpAsyncRequest.As
         }
 
         holder.title.setText(song.name.label);
+        holder.artist.setText(song.artist.label);
 
         if (!song.image.isEmpty()) {
-            /// TODO: find out best size to retrieve
-            String url = song.image.get(0).label.replace("55x55", "500x500");
+            String url = song.image.get(0).label.replace("55x55", "400x400");
             holder.thumbnail.setTag(song.image.get(0).label);
             Picasso.with(mContext)
                     .load(url)
@@ -72,7 +74,8 @@ public class TopTracksAdapter extends BaseAdapter implements HttpAsyncRequest.As
                             PicassoPalette.with(url, holder.thumbnail)
                                     .use(PicassoPalette.Profile.VIBRANT)
                                     .intoBackground(holder.background, PicassoPalette.Swatch.RGB)
-                                    .intoTextColor(holder.title, PicassoPalette.Swatch.TITLE_TEXT_COLOR)
+                                    .intoTextColor(holder.artist, PicassoPalette.Swatch.TITLE_TEXT_COLOR)
+                                    .intoTextColor(holder.title, PicassoPalette.Swatch.BODY_TEXT_COLOR)
                                     .intoCallBack(
                                             new PicassoPalette.CallBack() {
                                                 @Override
@@ -104,7 +107,8 @@ public class TopTracksAdapter extends BaseAdapter implements HttpAsyncRequest.As
 
                                                         if (s != null) {
                                                             holder.background.setBackgroundColor(s.getRgb());
-                                                            holder.title.setTextColor(s.getTitleTextColor());
+                                                            holder.artist.setTextColor(s.getTitleTextColor());
+                                                            holder.title.setTextColor(s.getBodyTextColor());
                                                             return;
                                                         }
                                                     }
@@ -125,6 +129,7 @@ public class TopTracksAdapter extends BaseAdapter implements HttpAsyncRequest.As
 
     static class ViewHolder {
         public TextView title;
+        public TextView artist;
         public ImageView thumbnail;
         public View background;
     }

@@ -7,7 +7,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity implements TopTenTracksFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements TopTracksFragment.OnFragmentInteractionListener {
     public final String TAG = "MainActivity";
 
     @Override
