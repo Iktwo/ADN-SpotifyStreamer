@@ -9,10 +9,10 @@
         android:layout_height="wrap_content"
         android:scaleType="centerCrop"/>
 
-    <com.iktwo.spotifystreamer.RectangularLinearLayout
+    <LinearLayout
         android:id="@+id/background"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="68dp"
         android:background="@color/colorPrimary">
 
         <TextView
@@ -23,6 +23,6 @@
             android:maxLines="2"
             android:ellipsize="end"/>
 
-    </com.iktwo.spotifystreamer.RectangularLinearLayout>
+    </LinearLayout>
 
 </LinearLayout>
