@@ -21,7 +21,7 @@ public class HttpAsyncRequest extends AsyncTask<String, String, ArrayList<String
 
     @Override
     protected ArrayList<String> doInBackground(String... params) {
-        ArrayList<String> reply = new ArrayList();
+        ArrayList<String> reply = new ArrayList<String>();
 
         OkHttpClient httpclient = new OkHttpClient();
         Response response;
