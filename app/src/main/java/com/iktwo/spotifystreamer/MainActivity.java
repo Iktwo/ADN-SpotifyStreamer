@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements TopTracksFragment
             /// TODO: if dual pane, put results here, if single pane start searchReusltsActivity
         } else {
             if (intent.getAction().equals(Intent.ACTION_SEARCH)) {
-
                 Intent resultIntent = new Intent(this, SearchResultsActivity.class);
                 resultIntent.putExtras(intent.getExtras());
                 resultIntent.setAction(intent.getAction());
@@ -73,16 +72,17 @@ public class MainActivity extends AppCompatActivity implements TopTracksFragment
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
-        Log.d(TAG, "onFragmentInteraction:" + uri.toString());
+    public void onSongSelected(String artist, String song) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra(SearchManager.QUERY, artist);
+        intent.setAction(Intent.ACTION_SEARCH);
+
+        startActivity(intent);
     }
 }
