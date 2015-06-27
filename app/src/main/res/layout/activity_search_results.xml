@@ -20,12 +20,12 @@
             android:background="?attr/colorPrimary"
             android:minHeight="?attr/actionBarSize" />
 
-        </android.support.v7.widget.CardView>
+    </android.support.v7.widget.CardView>
 
     <fragment
-        android:id="@+id/topTenTracksFragment"
+        android:id="@+id/search_results_fragment"
         android:layout_below="@+id/card_view"
-        android:name="com.iktwo.spotifystreamer.TopTracksFragment"
+        android:name="com.iktwo.spotifystreamer.SearchResultsFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

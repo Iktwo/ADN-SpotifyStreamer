@@ -68,52 +68,72 @@ public class TopTracksAdapter extends BaseAdapter implements HttpAsyncRequest.As
         if (!song.image.isEmpty()) {
             String url = song.image.get(0).label.replace("55x55", "400x400");
             holder.thumbnail.setTag(song.image.get(0).label);
-            Picasso.with(mContext)
-                    .load(url)
-                    .into(holder.thumbnail,
-                            PicassoPalette.with(url, holder.thumbnail)
-                                    .use(PicassoPalette.Profile.VIBRANT)
-                                    .intoBackground(holder.background, PicassoPalette.Swatch.RGB)
-                                    .intoTextColor(holder.artist, PicassoPalette.Swatch.TITLE_TEXT_COLOR)
-                                    .intoTextColor(holder.title, PicassoPalette.Swatch.BODY_TEXT_COLOR)
-                                    .intoCallBack(
-                                            new PicassoPalette.CallBack() {
-                                                @Override
-                                                public void onPaletteLoaded(Palette palette) {
-                                                    Palette.Swatch s = palette.getVibrantSwatch();
 
-                                                    // If there is a vibrant color, do nothing
-                                                    if (s != null)
-                                                        return;
+            if (song.getBackgroundColor() == 0) {
+                Picasso.with(mContext)
+                        .load(url)
+                        .into(holder.thumbnail,
+                                PicassoPalette.with(url, holder.thumbnail)
+                                        .use(PicassoPalette.Profile.VIBRANT)
+                                        .intoBackground(holder.background, PicassoPalette.Swatch.RGB)
+                                        .intoTextColor(holder.artist, PicassoPalette.Swatch.TITLE_TEXT_COLOR)
+                                        .intoTextColor(holder.title, PicassoPalette.Swatch.BODY_TEXT_COLOR)
+                                        .intoCallBack(
+                                                new PicassoPalette.CallBack() {
+                                                    @Override
+                                                    public void onPaletteLoaded(Palette palette) {
+                                                        Palette.Swatch s = palette.getVibrantSwatch();
 
-                                                    for (int i = 0; i < 5; i++) {
-                                                        switch (i) {
-                                                            case 0:
-                                                                s = palette.getDarkVibrantSwatch();
-                                                                break;
-                                                            case 1:
-                                                                s = palette.getLightVibrantSwatch();
-                                                                break;
-                                                            case 2:
-                                                                s = palette.getMutedSwatch();
-                                                                break;
-                                                            case 3:
-                                                                s = palette.getDarkMutedSwatch();
-                                                                break;
-                                                            case 4:
-                                                                s = palette.getLightMutedSwatch();
-                                                                break;
-                                                        }
-
+                                                        // If there is a vibrant color, do nothing
                                                         if (s != null) {
-                                                            holder.background.setBackgroundColor(s.getRgb());
-                                                            holder.artist.setTextColor(s.getTitleTextColor());
-                                                            holder.title.setTextColor(s.getBodyTextColor());
+                                                            song.setBackgroundColor(s.getRgb());
+                                                            song.setTextColor(s.getBodyTextColor());
+                                                            song.setTitleColor(s.getTitleTextColor());
                                                             return;
                                                         }
+
+                                                        for (int i = 0; i < 5; i++) {
+                                                            switch (i) {
+                                                                case 0:
+                                                                    s = palette.getDarkVibrantSwatch();
+                                                                    break;
+                                                                case 1:
+                                                                    s = palette.getLightVibrantSwatch();
+                                                                    break;
+                                                                case 2:
+                                                                    s = palette.getMutedSwatch();
+                                                                    break;
+                                                                case 3:
+                                                                    s = palette.getDarkMutedSwatch();
+                                                                    break;
+                                                                case 4:
+                                                                    s = palette.getLightMutedSwatch();
+                                                                    break;
+                                                            }
+
+                                                            if (s != null) {
+                                                                holder.background.setBackgroundColor(s.getRgb());
+                                                                holder.artist.setTextColor(s.getTitleTextColor());
+                                                                holder.title.setTextColor(s.getBodyTextColor());
+
+                                                                song.setBackgroundColor(s.getRgb());
+                                                                song.setTextColor(s.getBodyTextColor());
+                                                                song.setTitleColor(s.getTitleTextColor());
+
+                                                                return;
+                                                            }
+                                                        }
                                                     }
-                                                }
-                                            }));
+                                                }));
+            } else {
+                Picasso.with(mContext)
+                        .load(url)
+                        .into(holder.thumbnail);
+
+                holder.background.setBackgroundColor(song.getBackgroundColor());
+                holder.artist.setTextColor(song.getTextColor());
+                holder.title.setTextColor(song.getTitleColor());
+            }
         }
 
         return convertView;
