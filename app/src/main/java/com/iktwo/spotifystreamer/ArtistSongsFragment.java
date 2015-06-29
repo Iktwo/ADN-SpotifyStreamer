@@ -9,6 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.ArtistsPager;
@@ -86,14 +90,20 @@ public class ArtistSongsFragment extends Fragment {
     }
 
     public void getSongsForArtist(String artistId) {
+        Log.d("ArtistSong", "getSongsForArtist");
+
         /// TODO: implement this
         SpotifyApi api = new SpotifyApi();
         SpotifyService spotify = api.getService();
-        spotify.getArtistTopTrack(artistId, new Callback<Tracks>() {
+        Map<String, Object> options = new HashMap<>();
+        options.put("country", "US");
+
+        spotify.getArtistTopTrack(artistId, options, new Callback<Tracks>() {
             @Override
             public void success(Tracks tracks, Response response) {
+                Log.d("ArtistSong", "success: " + tracks.toString());
                 for (int i = 0; i < tracks.tracks.size(); i++) {
-                    Log.d("AristSong", Integer.toString(i) + ": " + tracks.tracks.get(i).toString());
+                    Log.d("ArtistSong", Integer.toString(i) + ": " + tracks.tracks.get(i).name);
                 }
                 /// TODO: add to adapter here
             }
@@ -101,6 +111,7 @@ public class ArtistSongsFragment extends Fragment {
             @Override
             public void failure(RetrofitError error) {
                 /// TODO: add toast here ???
+                Log.d("ArtistSong", "failure: " + error.toString());
             }
         });
     }

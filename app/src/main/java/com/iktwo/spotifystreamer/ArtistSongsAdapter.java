@@ -61,7 +61,7 @@ public class ArtistSongsAdapter extends BaseAdapter implements HttpAsyncRequest.
         final ArtistResult artistResult = (ArtistResult) getItem(position);
 
         if (convertView == null && inflater != null) {
-            convertView = inflater.inflate(R.layout.top_tracks_delegate, parent, false);
+            convertView = inflater.inflate(R.layout.artist_delegate, parent, false);
             holder = new ViewHolder();
             holder.background = convertView.findViewById(R.id.background);
             holder.artist = (TextView) convertView.findViewById(R.id.text_view_artist);
