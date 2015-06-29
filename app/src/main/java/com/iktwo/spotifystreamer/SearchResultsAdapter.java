@@ -49,7 +49,7 @@ public class SearchResultsAdapter extends BaseAdapter {
         final Artist artist = (Artist) getItem(position);
 
         if (convertView == null && inflater != null) {
-            convertView = inflater.inflate(R.layout.top_tracks_delegate, parent, false);
+            convertView = inflater.inflate(R.layout.artist_delegate, parent, false);
             holder = new ViewHolder();
             holder.background = convertView.findViewById(R.id.background);
             holder.title = (TextView) convertView.findViewById(R.id.text_view_artist);

@@ -1,7 +1,5 @@
 package com.iktwo.spotifystreamer;
 
-import android.graphics.Color;
-
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;

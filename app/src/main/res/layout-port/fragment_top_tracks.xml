@@ -2,12 +2,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.iktwo.spotifystreamer.SearchResultsFragment">
+    tools:context="com.iktwo.spotifystreamer.TopTracksFragment">
 
     <GridView
-        android:id="@+id/grid_view"
+        android:id="@+id/gridView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:columnWidth="90dp"
         android:gravity="center"
         android:horizontalSpacing="1dp"
         android:numColumns="2"

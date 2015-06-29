@@ -9,38 +9,25 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.florent37.picassopalette.PicassoPalette;
-import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Artist;
-import kaaes.spotify.webapi.android.models.ArtistsPager;
-import kaaes.spotify.webapi.android.models.Image;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
-
 // This will fetch top tracks from itunes rss and then search those artist in Spotify as there
 // doesn't seem to be any official API to get top artists or tracks in Spotify
 // this is done just so the initial screen is not empty waiting for you to search
-public class TopTracksAdapter extends BaseAdapter implements HttpAsyncRequest.AsyncResponse {
+public class TopTracksAdapter extends BaseAdapter {
     public String TAG = "TopTracksAdapter";
-    private List<ArtistResult> mArtists = new ArrayList<ArtistResult>();
+    private List<ArtistResult> mArtists = new ArrayList<>();
     private Context mContext;
     private LayoutInflater inflater;
 
     public TopTracksAdapter(Context context) {
         mContext = context;
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        /// TODO: Store this on a DB and query if empty or last insertion is old
-        new HttpAsyncRequest(this).execute("https://itunes.apple.com/us/rss/topsongs/limit=30/json");
     }
 
     @Override
@@ -148,85 +135,19 @@ public class TopTracksAdapter extends BaseAdapter implements HttpAsyncRequest.As
         return convertView;
     }
 
-    @Override
-    public void processFinish(ArrayList<String> reply) {
-        if (!reply.isEmpty() && !reply.get(0).equals("error")) {
-            final ItunesTopTracks tracks = new Gson().fromJson(reply.get(1), ItunesTopTracks.class);
+    public void add(int position, ArtistResult artistResult) {
+        mArtists.add(position, artistResult);
 
-            ArrayList<String> searchedArtist = new ArrayList<String>();
-            final ArrayList<Integer> order = new ArrayList<Integer>();
-
-            for (int i = 0; i < tracks.feed.entry.size(); i++) {
-                final int index = i;
-                final ItunesSong itunesResult = tracks.feed.entry.get(i);
-
-                if (searchedArtist.indexOf(itunesResult.artist.label) != -1)
-                    continue;
-
-                searchedArtist.add(itunesResult.artist.label);
-                String searchTerm = itunesResult.artist.label;
-                SpotifyApi api = new SpotifyApi();
-                SpotifyService spotify = api.getService();
-                spotify.searchArtists(searchTerm, new Callback<ArtistsPager>() {
-                    @Override
-                    public void success(final ArtistsPager artistsPager, Response response) {
-                        /// If there's a matching artist from Spotify search result, assume
-                        /// the first one is the one we are looking for.
-                        if (!artistsPager.artists.items.isEmpty()) {
-                            Artist a = artistsPager.artists.items.get(0);
-                            if (!itunesResult.image.isEmpty()) {
-                                Image image = new Image();
-                                image.url = itunesResult.image.get(0).label.replace("55x55", "500x500");
-                                a.images.add(0, image);
-                            }
-
-                            int positionToAdd = mArtists.size();
-
-                            if (!order.isEmpty()) {
-                                for (int j = order.size() - 1; j >= 0; j--) {
-                                    if (order.get(j) > index)
-                                        positionToAdd = j;
-                                }
-                            }
-
-                            mArtists.add(positionToAdd, new ArtistResult(a));
-                            order.add(positionToAdd, index);
-
-                            ((Activity) (mContext)).runOnUiThread(new Runnable() {
-                                public void run() {
-                                    notifyDataSetChanged();
-                                }
-                            });
-                        }
-                    }
-
-                    @Override
-                    public void failure(RetrofitError error) {
-                        // Fail silently
-                    }
-                });
+        ((Activity) (mContext)).runOnUiThread(new Runnable() {
+            public void run() {
+                notifyDataSetChanged();
             }
-        } else {
-            ((Activity) (mContext)).runOnUiThread(new Runnable() {
-                public void run() {
-                    Toast.makeText(mContext,
-                            "Error downloading top artists", Toast.LENGTH_LONG).show();
-                }
-            });
-        }
+        });
     }
 
     static class ViewHolder {
         public TextView artist;
         public ImageView thumbnail;
         public View background;
-    }
-
-    private class ItunesTopTracks {
-        public Feed feed;
-
-        class Feed {
-            public List<ItunesSong> entry = new ArrayList<ItunesSong>();
-        }
     }
 }

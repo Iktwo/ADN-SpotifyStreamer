@@ -19,29 +19,18 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link SearchResultsFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link SearchResultsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class SearchResultsFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
     private ProgressBar busyIndicator;
     private SearchResultsAdapter mAdapter;
     // TODO: Rename and change types of parameters
     private String mParam1;
-    private String mParam2;
 
-    private OnSearchResultsFragmentInteractionListener mListener;
+    private ArtistInteractionListener mListener;
 
     public SearchResultsFragment() {
-        // Required empty public constructor
     }
 
     /**
@@ -49,15 +38,13 @@ public class SearchResultsFragment extends Fragment {
      * this fragment using the provided parameters.
      *
      * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment SearchResultsFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static SearchResultsFragment newInstance(String param1, String param2) {
+    public static SearchResultsFragment newInstance(String param1) {
         SearchResultsFragment fragment = new SearchResultsFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -67,7 +54,6 @@ public class SearchResultsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
         mAdapter = new SearchResultsAdapter(getActivity());
@@ -105,7 +91,7 @@ public class SearchResultsFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mListener = (OnSearchResultsFragmentInteractionListener) activity;
+            mListener = (ArtistInteractionListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement OnFragmentInteractionListener");
         }
@@ -143,9 +129,5 @@ public class SearchResultsFragment extends Fragment {
                 });
             }
         });
-    }
-
-    public interface OnSearchResultsFragmentInteractionListener {
-        void onArtistSelected(String artistId);
     }
 }

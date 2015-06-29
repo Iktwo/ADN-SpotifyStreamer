@@ -11,7 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity implements TopTracksFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements ArtistInteractionListener {
     public static String ARTIST_SONGS_ACTION = "com.iktwo.spotifystreamer.ARTIST_SONGS";
 
     private final String TAG = "MainActivity";
@@ -81,9 +81,9 @@ public class MainActivity extends AppCompatActivity implements TopTracksFragment
     }
 
     @Override
-    public void onSongSelected(String artistId) {
+    public void onArtistSelected(String artistId) {
         if (mTwoPane) {
-            /// TODO: replace fragment
+            /// TODO: replace main fragment with the songs fragment
         } else {
             Intent resultIntent = new Intent(this, ArtistSongsActivity.class);
             resultIntent.putExtra("artistId", artistId);
