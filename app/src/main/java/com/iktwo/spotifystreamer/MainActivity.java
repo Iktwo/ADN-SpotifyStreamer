@@ -3,7 +3,6 @@ package com.iktwo.spotifystreamer;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -13,6 +12,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity implements TopTracksFragment.OnFragmentInteractionListener {
+    public static String ARTIST_SONGS_ACTION = "com.iktwo.spotifystreamer.ARTIST_SONGS";
+
     private final String TAG = "MainActivity";
     private boolean mTwoPane;
 
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements TopTracksFragment
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
+        Log.d(TAG, "onNewIntent");
+
         if (mTwoPane) {
             /// TODO: if dual pane, put results here, if single pane start searchReusltsActivity
         } else {
@@ -78,11 +81,15 @@ public class MainActivity extends AppCompatActivity implements TopTracksFragment
     }
 
     @Override
-    public void onSongSelected(String artist, String song) {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra(SearchManager.QUERY, artist);
-        intent.setAction(Intent.ACTION_SEARCH);
+    public void onSongSelected(String artistId) {
+        if (mTwoPane) {
+            /// TODO: replace fragment
+        } else {
+            Intent resultIntent = new Intent(this, ArtistSongsActivity.class);
+            resultIntent.putExtra("artistId", artistId);
+            resultIntent.setAction(ARTIST_SONGS_ACTION);
 
-        startActivity(intent);
+            startActivity(resultIntent);
+        }
     }
 }

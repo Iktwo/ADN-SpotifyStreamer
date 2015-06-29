@@ -30,7 +30,7 @@ public class TopTracksFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mTopTracksAdapter = new TopTracksAdapter(getActivity().getApplicationContext());
+        mTopTracksAdapter = new TopTracksAdapter(getActivity());
 
         setRetainInstance(true);
     }
@@ -46,16 +46,16 @@ public class TopTracksFragment extends Fragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                onItemClicked(((ItunesSong) (mTopTracksAdapter.getItem(i))).artist.label, ((ItunesSong) (mTopTracksAdapter.getItem(i))).name.label);
+                onItemClicked(((ArtistResult) (mTopTracksAdapter.getItem(i))).artist.id);
             }
         });
 
         return view;
     }
 
-    public void onItemClicked(String artist, String song) {
+    public void onItemClicked(String artistId) {
         if (mListener != null) {
-            mListener.onSongSelected(artist, song);
+            mListener.onSongSelected(artistId);
         }
     }
 
@@ -77,6 +77,6 @@ public class TopTracksFragment extends Fragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onSongSelected(String artist, String song);
+        void onSongSelected(String artistId);
     }
 }

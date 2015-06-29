@@ -27,16 +27,13 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-// This will fetch top tracks from itunes rss and then search those artist in Spotify as there
-// doesn't seem to be any official API to get top artists or tracks in Spotify
-// this is done just so the initial screen is not empty waiting for you to search
-public class TopTracksAdapter extends BaseAdapter implements HttpAsyncRequest.AsyncResponse {
-    public String TAG = "TopTracksAdapter";
+public class ArtistSongsAdapter extends BaseAdapter implements HttpAsyncRequest.AsyncResponse {
+    public String TAG = "ArtistSongsAdapter";
     private List<ArtistResult> mArtists = new ArrayList<ArtistResult>();
     private Context mContext;
     private LayoutInflater inflater;
 
-    public TopTracksAdapter(Context context) {
+    public ArtistSongsAdapter(Context context) {
         mContext = context;
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         /// TODO: Store this on a DB and query if empty or last insertion is old

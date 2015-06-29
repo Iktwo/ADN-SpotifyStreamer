@@ -1,13 +1,14 @@
 package com.iktwo.spotifystreamer;
 
 import android.content.Context;
-import android.util.Log;
+import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.github.florent37.picassopalette.PicassoPalette;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -41,17 +42,18 @@ public class SearchResultsAdapter extends BaseAdapter {
     public long getItemId(int position) {
         return position;
     }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Log.d(TAG, "calling get view");
         final ViewHolder holder;
         final Artist artist = (Artist) getItem(position);
 
         if (convertView == null && inflater != null) {
-            convertView = inflater.inflate(R.layout.search_result_delegate, parent, false);
+            convertView = inflater.inflate(R.layout.top_tracks_delegate, parent, false);
             holder = new ViewHolder();
-            holder.title = (TextView) convertView.findViewById(R.id.text_view_title);
-            holder.thumbnail = (SquareImageViewByWidth) convertView.findViewById(R.id.thumbnail);
+            holder.background = convertView.findViewById(R.id.background);
+            holder.title = (TextView) convertView.findViewById(R.id.text_view_artist);
+            holder.thumbnail = (SquareImageViewByWidth) convertView.findViewById(R.id.image_view_thumbnail);
 
             convertView.setTag(holder);
         } else {
@@ -61,15 +63,61 @@ public class SearchResultsAdapter extends BaseAdapter {
         holder.title.setText(artist.name);
 
         if (!artist.images.isEmpty()) {
+            String url = artist.images.get(0).url;
+
             Picasso.with(mContext)
-                    .load(artist.images.get(0).url)
-                    .into(holder.thumbnail);
+                    .load(url)
+                    .placeholder(R.drawable.placeholder_artist)
+                    .into(holder.thumbnail,
+                            PicassoPalette.with(url, holder.thumbnail)
+                                    .use(PicassoPalette.Profile.VIBRANT)
+                                    .intoBackground(holder.background, PicassoPalette.Swatch.RGB)
+                                    .intoTextColor(holder.title, PicassoPalette.Swatch.TITLE_TEXT_COLOR)
+                                    .intoCallBack(
+                                            new PicassoPalette.CallBack() {
+                                                @Override
+                                                public void onPaletteLoaded(Palette palette) {
+                                                    Palette.Swatch s = palette.getVibrantSwatch();
+
+                                                    // If there is a vibrant color, do nothing
+                                                    if (s != null)
+                                                        return;
+
+                                                    for (int i = 0; i < 5; i++) {
+                                                        switch (i) {
+                                                            case 0:
+                                                                s = palette.getDarkVibrantSwatch();
+                                                                break;
+                                                            case 1:
+                                                                s = palette.getLightVibrantSwatch();
+                                                                break;
+                                                            case 2:
+                                                                s = palette.getMutedSwatch();
+                                                                break;
+                                                            case 3:
+                                                                s = palette.getDarkMutedSwatch();
+                                                                break;
+                                                            case 4:
+                                                                s = palette.getLightMutedSwatch();
+                                                                break;
+                                                        }
+
+                                                        if (s != null) {
+                                                            holder.background.setBackgroundColor(s.getRgb());
+                                                            holder.title.setTextColor(s.getTitleTextColor());
+
+                                                            return;
+                                                        }
+                                                    }
+                                                }
+                                            }));
         } else {
             Picasso.with(mContext)
                     .load(R.drawable.placeholder_artist)
                     .into(holder.thumbnail);
 
-            Log.d(TAG, "NO IMAGE :( for " + artist.name);
+            holder.background.setBackgroundColor(mContext.getResources().getColor(R.color.colorPrimary));
+            holder.title.setTextColor(mContext.getResources().getColor(R.color.abc_primary_text_material_dark));
         }
 
         return convertView;
@@ -83,5 +131,6 @@ public class SearchResultsAdapter extends BaseAdapter {
     static class ViewHolder {
         public TextView title;
         public SquareImageViewByWidth thumbnail;
+        public View background;
     }
 }

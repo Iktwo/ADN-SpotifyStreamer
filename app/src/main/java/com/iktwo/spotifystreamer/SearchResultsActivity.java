@@ -10,7 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class SearchResultsActivity extends AppCompatActivity implements SearchResultsFragment.OnFragmentInteractionListener {
+public class SearchResultsActivity extends AppCompatActivity implements SearchResultsFragment.OnSearchResultsFragmentInteractionListener {
 
     private static final String TAG = "SearchResultsActivity";
 
@@ -56,7 +56,7 @@ public class SearchResultsActivity extends AppCompatActivity implements SearchRe
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
+        // Handle action bar item clicks here.  The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
@@ -65,8 +65,11 @@ public class SearchResultsActivity extends AppCompatActivity implements SearchRe
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
-        /// TODO: do stuff here
+    public void onArtistSelected(String artistId) {
+        Intent resultIntent = new Intent(this, ArtistSongsActivity.class);
+        resultIntent.putExtra("artistId", artistId);
+        resultIntent.setAction(MainActivity.ARTIST_SONGS_ACTION);
 
+        startActivity(resultIntent);
     }
 }
