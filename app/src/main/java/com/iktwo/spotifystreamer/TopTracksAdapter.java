@@ -6,6 +6,7 @@ import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,42 +17,25 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
+import kaaes.spotify.webapi.android.models.Artist;
+
 // This will fetch top tracks from itunes rss and then search those artist in Spotify as there
 // doesn't seem to be any official API to get top artists or tracks in Spotify
 // this is done just so the initial screen is not empty waiting for you to search
-public class TopTracksAdapter extends BaseAdapter {
-    public String TAG = "TopTracksAdapter";
-    private List<ArtistResult> mArtists = new ArrayList<>();
-    private Context mContext;
-    private LayoutInflater inflater;
+public class TopTracksAdapter extends ArrayAdapter<ArtistResult> {
+    private static final String TAG = TopTracksAdapter.class.getSimpleName();
 
-    public TopTracksAdapter(Context context) {
-        mContext = context;
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    }
-
-    @Override
-    public int getCount() {
-        return mArtists.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return mArtists.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
+    public TopTracksAdapter(Activity context, List<ArtistResult> songs) {
+        super(context, 0, songs);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         final ViewHolder holder;
-        final ArtistResult artistResult = (ArtistResult) getItem(position);
+        final ArtistResult artistResult = getItem(position);
 
-        if (convertView == null && inflater != null) {
-            convertView = inflater.inflate(R.layout.artist_delegate, parent, false);
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.artist_delegate, parent, false);
             holder = new ViewHolder();
             holder.background = convertView.findViewById(R.id.background);
             holder.artist = (TextView) convertView.findViewById(R.id.text_view_artist);
@@ -69,7 +53,7 @@ public class TopTracksAdapter extends BaseAdapter {
             holder.thumbnail.setTag(artistResult.artist.images.get(0).url);
 
             if (artistResult.getBackgroundColor() == 0) {
-                Picasso.with(mContext)
+                Picasso.with(getContext())
                         .load(url)
                         .into(holder.thumbnail,
                                 PicassoPalette.with(url, holder.thumbnail)
@@ -123,7 +107,7 @@ public class TopTracksAdapter extends BaseAdapter {
                                                     }
                                                 }));
             } else {
-                Picasso.with(mContext)
+                Picasso.with(getContext())
                         .load(url)
                         .into(holder.thumbnail);
 
@@ -133,16 +117,6 @@ public class TopTracksAdapter extends BaseAdapter {
         }
 
         return convertView;
-    }
-
-    public void add(int position, ArtistResult artistResult) {
-        mArtists.add(position, artistResult);
-
-        ((Activity) (mContext)).runOnUiThread(new Runnable() {
-            public void run() {
-                notifyDataSetChanged();
-            }
-        });
     }
 
     static class ViewHolder {

@@ -4,7 +4,6 @@ import kaaes.spotify.webapi.android.models.Artist;
 
 public class ArtistResult {
     Artist artist;
-
     private transient int backgroundColor = 0;
     private transient int titleColor = 0;
     private transient int textColor = 0;

@@ -13,20 +13,24 @@ import android.widget.Toast;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.ArtistsPager;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 public class SearchResultsFragment extends Fragment {
+    private static final String TAG = SearchResultsFragment.class.getSimpleName();
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private ProgressBar busyIndicator;
     private SearchResultsAdapter mAdapter;
+
+    private boolean hasFinishedFetching = false;
     // TODO: Rename and change types of parameters
     private String mParam1;
+    private GridView gridView;
 
     private ArtistInteractionListener mListener;
 
@@ -56,8 +60,6 @@ public class SearchResultsFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
         }
 
-        mAdapter = new SearchResultsAdapter(getActivity());
-
         setRetainInstance(true);
     }
 
@@ -65,16 +67,21 @@ public class SearchResultsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search_results, container, false);
 
-        busyIndicator = (ProgressBar) view.findViewById(R.id.busy_indicator);
-        busyIndicator.setVisibility(View.GONE);
+        gridView = (GridView) view.findViewById(R.id.grid_view);
 
-        GridView gridView = (GridView) view.findViewById(R.id.grid_view);
-        gridView.setAdapter(mAdapter);
+        busyIndicator = (ProgressBar) view.findViewById(R.id.busy_indicator);
+
+        if (hasFinishedFetching) {
+            busyIndicator.setVisibility(View.GONE);
+        }
+
+        if (mAdapter != null)
+            gridView.setAdapter(mAdapter);
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                onItemClicked(((Artist) (mAdapter.getItem(i))).id);
+                onItemClicked(mAdapter.getItem(i).id);
             }
         });
 
@@ -104,17 +111,19 @@ public class SearchResultsFragment extends Fragment {
     }
 
     public void search(String searchTerm) {
+        hasFinishedFetching = false;
         busyIndicator.setVisibility(View.VISIBLE);
         SpotifyApi api = new SpotifyApi();
         SpotifyService spotify = api.getService();
         spotify.searchArtists(searchTerm, new Callback<ArtistsPager>() {
             @Override
             public void success(final ArtistsPager artistsPager, Response response) {
-
                 getActivity().runOnUiThread(new Runnable() {
                     public void run() {
-                        mAdapter.setData(artistsPager.artists.items);
+                        mAdapter = new SearchResultsAdapter(getActivity(), artistsPager.artists.items);
+                        gridView.setAdapter(mAdapter);
                         busyIndicator.setVisibility(View.GONE);
+                        hasFinishedFetching = true;
                     }
                 });
             }
@@ -125,6 +134,7 @@ public class SearchResultsFragment extends Fragment {
                     public void run() {
                         busyIndicator.setVisibility(View.GONE);
                         Toast.makeText(getActivity(), "Error", Toast.LENGTH_LONG).show();
+                        hasFinishedFetching = true;
                     }
                 });
             }

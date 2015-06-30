@@ -9,7 +9,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class SearchResultsActivity extends AppCompatActivity implements ArtistInteractionListener {
-    private static final String TAG = "SearchResultsActivity";
+    private static final String TAG = SearchResultsActivity.class.getSimpleName();
+    private boolean mSearched = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,10 +24,12 @@ public class SearchResultsActivity extends AppCompatActivity implements ArtistIn
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        if (getIntent().getAction().equals(Intent.ACTION_SEARCH)) {
-            String searchTerm = getIntent().getStringExtra(SearchManager.QUERY);
+        mSearched = (null != savedInstanceState) && savedInstanceState.getBoolean("has-searched");
+
+        if (getIntent().getAction().equals(Intent.ACTION_SEARCH) && !mSearched) {
             SearchResultsFragment searchResulstFragment = (SearchResultsFragment) getSupportFragmentManager().findFragmentById(R.id.search_results_fragment);
-            searchResulstFragment.search(searchTerm);
+            searchResulstFragment.search(getIntent().getStringExtra(SearchManager.QUERY));
+            mSearched = true;
         }
     }
 
@@ -50,5 +53,11 @@ public class SearchResultsActivity extends AppCompatActivity implements ArtistIn
         resultIntent.setAction(MainActivity.ARTIST_SONGS_ACTION);
 
         startActivity(resultIntent);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        state.putBoolean("has-searched", mSearched);
     }
 }

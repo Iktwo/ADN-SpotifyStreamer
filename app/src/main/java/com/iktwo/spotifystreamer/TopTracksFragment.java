@@ -3,6 +3,7 @@ package com.iktwo.spotifystreamer;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,11 +27,15 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 public class TopTracksFragment extends Fragment implements HttpAsyncRequest.AsyncResponse {
-    private static final String TAG = "TopTracksFragment";
+    private static final String TAG = TopTracksFragment.class.getSimpleName();
 
-    private int itemsToRequest = 30;
+    private int itemsToRequest = 10;
+    private int fetchedItems = 0;
 
     private TopTracksAdapter mTopTracksAdapter;
+    private GridView gridView;
+
+    private ArrayList<ArtistResult> mArtists = new ArrayList<>();
 
     private ArtistInteractionListener mListener;
 
@@ -51,8 +56,6 @@ public class TopTracksFragment extends Fragment implements HttpAsyncRequest.Asyn
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mTopTracksAdapter = new TopTracksAdapter(getActivity());
-
         /// TODO: Store this on a DB and query if empty or last insertion is old
         new HttpAsyncRequest(this).execute("https://itunes.apple.com/us/rss/topsongs/limit=" + Integer.toString(itemsToRequest) + "/json");
 
@@ -64,17 +67,20 @@ public class TopTracksFragment extends Fragment implements HttpAsyncRequest.Asyn
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_top_tracks, container, false);
 
-        GridView gridView = (GridView) view.findViewById(R.id.gridView);
-        gridView.setAdapter(mTopTracksAdapter);
+        gridView = (GridView) view.findViewById(R.id.gridView);
+        busyIndicator = (ProgressBar) view.findViewById(R.id.busy_indicator);
+
+        if (mTopTracksAdapter != null) {
+            gridView.setAdapter(mTopTracksAdapter);
+            busyIndicator.setVisibility(View.GONE);
+        }
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                onItemClicked(((ArtistResult) (mTopTracksAdapter.getItem(i))).artist.id);
+                onItemClicked(((ArtistResult) gridView.getAdapter().getItem(i)).artist.id);
             }
         });
-
-        busyIndicator = (ProgressBar) view.findViewById(R.id.busy_indicator);
 
         return view;
     }
@@ -110,6 +116,8 @@ public class TopTracksFragment extends Fragment implements HttpAsyncRequest.Asyn
             ArrayList<String> searchedArtist = new ArrayList<String>();
             final ArrayList<Integer> order = new ArrayList<Integer>();
 
+            Log.d(TAG, "real amount of items that were fetched from itunes" + Integer.toString(tracks.feed.entry.size()));
+
             for (int i = 0; i < tracks.feed.entry.size(); i++) {
                 final int index = i;
                 final ItunesSong itunesResult = tracks.feed.entry.get(i);
@@ -124,6 +132,8 @@ public class TopTracksFragment extends Fragment implements HttpAsyncRequest.Asyn
                 spotify.searchArtists(searchTerm, new Callback<ArtistsPager>() {
                     @Override
                     public void success(final ArtistsPager artistsPager, Response response) {
+                        fetchedItems += 1;
+                        Log.d(TAG, "success: " + Integer.toString(fetchedItems));
                         /// If there's a matching artist from Spotify search result, assume
                         /// the first one is the one we are looking for.
                         if (!artistsPager.artists.items.isEmpty()) {
@@ -134,7 +144,7 @@ public class TopTracksFragment extends Fragment implements HttpAsyncRequest.Asyn
                                 a.images.add(0, image);
                             }
 
-                            int positionToAdd = mTopTracksAdapter.getCount();
+                            int positionToAdd = mArtists.size();
 
                             if (!order.isEmpty()) {
                                 for (int j = order.size() - 1; j >= 0; j--) {
@@ -143,35 +153,71 @@ public class TopTracksFragment extends Fragment implements HttpAsyncRequest.Asyn
                                 }
                             }
 
-                            mTopTracksAdapter.add(positionToAdd, new ArtistResult(a));
+                            mArtists.add(positionToAdd, new ArtistResult(a));
                             order.add(positionToAdd, index);
                         }
 
-                        getActivity().runOnUiThread(new Runnable() {
-                            public void run() {
-                                busyIndicator.setVisibility(View.GONE);
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                public void run() {
+                                    busyIndicator.setVisibility(View.GONE);
+                                }
+                            });
+                        }
+
+                        if (fetchedItems == itemsToRequest) {
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        mTopTracksAdapter = new TopTracksAdapter(getActivity(), mArtists);
+                                        gridView.setAdapter(mTopTracksAdapter);
+                                    }
+                                });
                             }
-                        });
+                        }
                     }
 
                     @Override
                     public void failure(RetrofitError error) {
-                        // Fail silently
-                        getActivity().runOnUiThread(new Runnable() {
-                            public void run() {
-                                busyIndicator.setVisibility(View.GONE);
+                        fetchedItems += 1;
+
+                        if (fetchedItems == itemsToRequest) {
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        mTopTracksAdapter = new TopTracksAdapter(getActivity(), mArtists);
+                                        gridView.setAdapter(mTopTracksAdapter);
+                                    }
+                                });
                             }
-                        });
+                        }
+
+                        /// TODO: do something if all failed
+                        // Fail silently
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                public void run() {
+                                    busyIndicator.setVisibility(View.GONE);
+                                }
+                            });
+                        }
                     }
                 });
             }
         } else {
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    Toast.makeText(getActivity(),
-                            "Error downloading top artists", Toast.LENGTH_LONG).show();
-                }
-            });
+            Log.e(TAG, "could not download itunes rss");
+
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getActivity(),
+                                "Error downloading top artists",
+                                Toast.LENGTH_LONG).show();
+
+                        busyIndicator.setVisibility(View.GONE);
+                    }
+                });
+            }
         }
     }
 

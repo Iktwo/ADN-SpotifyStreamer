@@ -7,6 +7,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import kaaes.spotify.webapi.android.models.Track;
+
 public class ArtistSongsActivity extends AppCompatActivity implements ArtistSongsFragment.OnArtistSongFragmentInteractionListener {
     private ArtistSongsFragment mArtistSongsFragment;
 
@@ -50,7 +52,7 @@ public class ArtistSongsActivity extends AppCompatActivity implements ArtistSong
     }
 
     @Override
-    public void onArtistSongFragmentInteractionListener(Uri uri) {
+    public void onSongClicked(Track song) {
 
     }
 }

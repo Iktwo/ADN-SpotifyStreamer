@@ -10,9 +10,11 @@ import com.squareup.okhttp.Response;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class HttpAsyncRequest extends AsyncTask<String, String, ArrayList<String>> {
-    private static final String TAG = "HttpAsyncRequest";
+    private static final String TAG = HttpAsyncRequest.class.getSimpleName();
+
     AsyncResponse requester = null;
 
     public HttpAsyncRequest(AsyncResponse requester) {
@@ -24,6 +26,8 @@ public class HttpAsyncRequest extends AsyncTask<String, String, ArrayList<String
         ArrayList<String> reply = new ArrayList<String>();
 
         OkHttpClient httpclient = new OkHttpClient();
+        httpclient.setConnectTimeout(10, TimeUnit.SECONDS);
+
         Response response;
 
         try {

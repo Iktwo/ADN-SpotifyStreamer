@@ -7,14 +7,14 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity implements ArtistInteractionListener {
-    public static String ARTIST_SONGS_ACTION = "com.iktwo.spotifystreamer.ARTIST_SONGS";
+    public static final String ARTIST_SONGS_ACTION = "com.iktwo.spotifystreamer.ARTIST_SONGS";
 
-    private final String TAG = "MainActivity";
+    private static final String TAG = MainActivity.class.getSimpleName();
+
     private boolean mTwoPane;
 
     @Override
@@ -26,28 +26,25 @@ public class MainActivity extends AppCompatActivity implements ArtistInteraction
         setSupportActionBar(toolbar);
 
         if (findViewById(R.id.frame_layout_details) != null) {
-            mTwoPane = true;
+            /// TODO: implement two pane mode in stage 2
+            // mTwoPane = true;
 
-//            // In two-pane mode, list items should be given the
-//            // 'activated' state when touched.
-//            ((ItemListFragment) getSupportFragmentManager()
-//                    .findFragmentById(R.id.item_list))
-//                    .setActivateOnItemClick(true);
+            // In two-pane mode, list items should be given the
+            // 'activated' state when touched.
+            // ((ItemListFragment) getSupportFragmentManager()
+            // .findFragmentById(R.id.item_list))
+            // .setActivateOnItemClick(true);
         }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-
-        Log.d(TAG, "onStart");
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-
-        Log.d(TAG, "onNewIntent");
 
         if (mTwoPane) {
             /// TODO: if dual pane, put results here, if single pane start searchReusltsActivity

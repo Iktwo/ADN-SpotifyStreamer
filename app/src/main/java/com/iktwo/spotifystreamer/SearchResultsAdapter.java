@@ -1,55 +1,34 @@
 package com.iktwo.spotifystreamer;
 
-import android.content.Context;
+import android.app.Activity;
 import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.github.florent37.picassopalette.PicassoPalette;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.models.Artist;
 
-public class SearchResultsAdapter extends BaseAdapter {
-    public String TAG = "SearchResultsAdapter";
+public class SearchResultsAdapter extends ArrayAdapter<Artist> {
+    private static final String TAG = SearchResultsAdapter.class.getSimpleName();
 
-    private List<Artist> mData = new ArrayList<Artist>();
-    private Context mContext;
-    private LayoutInflater inflater;
-
-    public SearchResultsAdapter(Context context) {
-        mContext = context;
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    }
-
-    @Override
-    public int getCount() {
-        return mData.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return mData.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
+    public SearchResultsAdapter(Activity context, List<Artist> songs) {
+        super(context, 0, songs);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         final ViewHolder holder;
-        final Artist artist = (Artist) getItem(position);
+        final Artist artist = getItem(position);
 
-        if (convertView == null && inflater != null) {
-            convertView = inflater.inflate(R.layout.artist_delegate, parent, false);
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.artist_delegate, parent, false);
             holder = new ViewHolder();
             holder.background = convertView.findViewById(R.id.background);
             holder.title = (TextView) convertView.findViewById(R.id.text_view_artist);
@@ -65,7 +44,7 @@ public class SearchResultsAdapter extends BaseAdapter {
         if (!artist.images.isEmpty()) {
             String url = artist.images.get(0).url;
 
-            Picasso.with(mContext)
+            Picasso.with(getContext())
                     .load(url)
                     .placeholder(R.drawable.placeholder_artist)
                     .into(holder.thumbnail,
@@ -112,20 +91,15 @@ public class SearchResultsAdapter extends BaseAdapter {
                                                 }
                                             }));
         } else {
-            Picasso.with(mContext)
+            Picasso.with(getContext())
                     .load(R.drawable.placeholder_artist)
                     .into(holder.thumbnail);
 
-            holder.background.setBackgroundColor(mContext.getResources().getColor(R.color.colorPrimary));
-            holder.title.setTextColor(mContext.getResources().getColor(R.color.abc_primary_text_material_dark));
+            holder.background.setBackgroundColor(getContext().getResources().getColor(R.color.colorPrimary));
+            holder.title.setTextColor(getContext().getResources().getColor(R.color.abc_primary_text_material_dark));
         }
 
         return convertView;
-    }
-
-    public void setData(List<Artist> data) {
-        mData = data;
-        notifyDataSetChanged();
     }
 
     static class ViewHolder {
