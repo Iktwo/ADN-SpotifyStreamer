@@ -71,9 +71,8 @@ public class SearchResultsFragment extends Fragment {
 
         busyIndicator = (ProgressBar) view.findViewById(R.id.busy_indicator);
 
-        if (hasFinishedFetching) {
+        if (hasFinishedFetching)
             busyIndicator.setVisibility(View.GONE);
-        }
 
         if (mAdapter != null)
             gridView.setAdapter(mAdapter);

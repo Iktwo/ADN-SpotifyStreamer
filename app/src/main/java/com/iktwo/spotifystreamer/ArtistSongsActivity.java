@@ -1,6 +1,5 @@
 package com.iktwo.spotifystreamer;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -11,6 +10,7 @@ import kaaes.spotify.webapi.android.models.Track;
 
 public class ArtistSongsActivity extends AppCompatActivity implements ArtistSongsFragment.OnArtistSongFragmentInteractionListener {
     private ArtistSongsFragment mArtistSongsFragment;
+    private boolean mSearched = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,8 +26,11 @@ public class ArtistSongsActivity extends AppCompatActivity implements ArtistSong
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        if (getIntent().getAction().equals(MainActivity.ARTIST_SONGS_ACTION)) {
+        mSearched = (null != savedInstanceState) && savedInstanceState.getBoolean("has-searched");
+
+        if (getIntent().getAction().equals(MainActivity.ARTIST_SONGS_ACTION) && !mSearched) {
             mArtistSongsFragment.getSongsForArtist(getIntent().getStringExtra("artistId"));
+            mSearched = true;
         }
     }
 
@@ -54,5 +57,11 @@ public class ArtistSongsActivity extends AppCompatActivity implements ArtistSong
     @Override
     public void onSongClicked(Track song) {
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        state.putBoolean("has-searched", mSearched);
     }
 }

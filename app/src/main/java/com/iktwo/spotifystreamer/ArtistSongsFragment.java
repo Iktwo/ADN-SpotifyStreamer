@@ -39,6 +39,8 @@ public class ArtistSongsFragment extends Fragment {
     private ArtistSongsAdapter mArtistSongsAdapter;
     private ProgressBar busyIndicator;
 
+    private boolean hasFinishedFetching = false;
+
     public ArtistSongsFragment() {
     }
 
@@ -89,6 +91,9 @@ public class ArtistSongsFragment extends Fragment {
 
         busyIndicator = (ProgressBar) view.findViewById(R.id.busy_indicator);
 
+        if (hasFinishedFetching)
+            busyIndicator.setVisibility(View.GONE);
+
         return view;
     }
 
@@ -119,6 +124,9 @@ public class ArtistSongsFragment extends Fragment {
     public void getSongsForArtist(String artistId) {
         Log.d("ArtistSong", "getSongsForArtist");
 
+        hasFinishedFetching = false;
+        busyIndicator.setVisibility(View.VISIBLE);
+
         /// TODO: implement this
         SpotifyApi api = new SpotifyApi();
         SpotifyService spotify = api.getService();
@@ -142,6 +150,7 @@ public class ArtistSongsFragment extends Fragment {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(new Runnable() {
                         public void run() {
+                            hasFinishedFetching = true;
                             busyIndicator.setVisibility(View.GONE);
                         }
                     });
@@ -157,6 +166,7 @@ public class ArtistSongsFragment extends Fragment {
                                     "Could not get tracks for artist",
                                     Toast.LENGTH_LONG).show();
 
+                            hasFinishedFetching = true;
                             busyIndicator.setVisibility(View.GONE);
                         }
                     });
