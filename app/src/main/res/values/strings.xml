@@ -10,4 +10,5 @@
     <string name="artist_search_hint">Search by artist name</string>
     <string name="title_activity_search_results">SearchResultsActivity</string>
     <string name="title_activity_artist_songs">ArtistSongsActivity</string>
+    <string name="no_results">No results found</string>
 </resources>

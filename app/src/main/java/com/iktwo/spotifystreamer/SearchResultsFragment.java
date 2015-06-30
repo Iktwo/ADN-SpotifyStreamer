@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -24,10 +25,14 @@ public class SearchResultsFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
+
     private ProgressBar busyIndicator;
     private SearchResultsAdapter mAdapter;
+    private TextView textViewNoResults;
 
     private boolean hasFinishedFetching = false;
+    private boolean noResults = false;
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private GridView gridView;
@@ -71,11 +76,16 @@ public class SearchResultsFragment extends Fragment {
 
         busyIndicator = (ProgressBar) view.findViewById(R.id.busy_indicator);
 
+        textViewNoResults = (TextView) view.findViewById(R.id.text_view_no_results);
+
         if (hasFinishedFetching)
             busyIndicator.setVisibility(View.GONE);
 
         if (mAdapter != null)
             gridView.setAdapter(mAdapter);
+
+        if (noResults)
+            textViewNoResults.setVisibility(View.VISIBLE);
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -109,7 +119,7 @@ public class SearchResultsFragment extends Fragment {
         mListener = null;
     }
 
-    public void search(String searchTerm) {
+    public void search(final String searchTerm) {
         hasFinishedFetching = false;
         busyIndicator.setVisibility(View.VISIBLE);
         SpotifyApi api = new SpotifyApi();
@@ -123,6 +133,12 @@ public class SearchResultsFragment extends Fragment {
                         gridView.setAdapter(mAdapter);
                         busyIndicator.setVisibility(View.GONE);
                         hasFinishedFetching = true;
+
+                        if (artistsPager.artists.items.isEmpty()) {
+                            noResults = true;
+                            textViewNoResults.setVisibility(View.VISIBLE);
+                            Toast.makeText(getActivity(), "No results", Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
             }
