@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import kaaes.spotify.webapi.android.models.Track;
 
 public class ArtistSongsActivity extends AppCompatActivity implements ArtistSongsFragment.OnArtistSongFragmentInteractionListener {
-    private ArtistSongsFragment mArtistSongsFragment;
     private boolean mSearched = false;
 
     @Override
@@ -20,7 +19,10 @@ public class ArtistSongsActivity extends AppCompatActivity implements ArtistSong
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mArtistSongsFragment = (ArtistSongsFragment) getFragmentManager().findFragmentById(R.id.artist_songs_fragment);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setTitle(getIntent().getStringExtra("artistName"));
+
+        ArtistSongsFragment mArtistSongsFragment = (ArtistSongsFragment) getFragmentManager().findFragmentById(R.id.artist_songs_fragment);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);

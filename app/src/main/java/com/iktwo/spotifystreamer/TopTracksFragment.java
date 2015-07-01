@@ -21,7 +21,6 @@ import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.ArtistsPager;
-import kaaes.spotify.webapi.android.models.Image;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -78,16 +77,16 @@ public class TopTracksFragment extends Fragment implements HttpAsyncRequest.Asyn
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                onItemClicked(((ArtistResult) gridView.getAdapter().getItem(i)).artist.id);
+                onItemClicked(((ArtistResult) gridView.getAdapter().getItem(i)).artist.id, ((ArtistResult) gridView.getAdapter().getItem(i)).artist.name);
             }
         });
 
         return view;
     }
 
-    public void onItemClicked(String artistId) {
+    public void onItemClicked(String artistId, String artistName) {
         if (mListener != null) {
-            mListener.onArtistSelected(artistId);
+            mListener.onArtistSelected(artistId, artistName);
         }
     }
 
@@ -113,8 +112,8 @@ public class TopTracksFragment extends Fragment implements HttpAsyncRequest.Asyn
         if (!reply.isEmpty() && !reply.get(0).equals("error")) {
             final ItunesTopTracks tracks = new Gson().fromJson(reply.get(1), ItunesTopTracks.class);
 
-            ArrayList<String> searchedArtist = new ArrayList<String>();
-            final ArrayList<Integer> order = new ArrayList<Integer>();
+            ArrayList<String> searchedArtist = new ArrayList<>();
+            final ArrayList<Integer> order = new ArrayList<>();
 
             Log.d(TAG, "real amount of items that were fetched from itunes" + Integer.toString(tracks.feed.entry.size()));
 
@@ -133,16 +132,10 @@ public class TopTracksFragment extends Fragment implements HttpAsyncRequest.Asyn
                     @Override
                     public void success(final ArtistsPager artistsPager, Response response) {
                         fetchedItems += 1;
-                        Log.d(TAG, "success: " + Integer.toString(fetchedItems));
                         /// If there's a matching artist from Spotify search result, assume
                         /// the first one is the one we are looking for.
                         if (!artistsPager.artists.items.isEmpty()) {
                             Artist a = artistsPager.artists.items.get(0);
-                            if (!itunesResult.image.isEmpty()) {
-                                Image image = new Image();
-                                image.url = itunesResult.image.get(0).label.replace("55x55", "500x500");
-                                a.images.add(0, image);
-                            }
 
                             int positionToAdd = mArtists.size();
 
@@ -192,7 +185,7 @@ public class TopTracksFragment extends Fragment implements HttpAsyncRequest.Asyn
                             }
                         }
 
-                        /// TODO: do something if all failed
+                        /// TODO: Do something if all failed
                         // Fail silently
                         if (getActivity() != null) {
                             getActivity().runOnUiThread(new Runnable() {

@@ -23,7 +23,7 @@ public class HttpAsyncRequest extends AsyncTask<String, String, ArrayList<String
 
     @Override
     protected ArrayList<String> doInBackground(String... params) {
-        ArrayList<String> reply = new ArrayList<String>();
+        ArrayList<String> reply = new ArrayList<>();
 
         OkHttpClient httpclient = new OkHttpClient();
         httpclient.setConnectTimeout(10, TimeUnit.SECONDS);

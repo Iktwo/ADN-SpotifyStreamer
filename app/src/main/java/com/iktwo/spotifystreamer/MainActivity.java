@@ -78,12 +78,13 @@ public class MainActivity extends AppCompatActivity implements ArtistInteraction
     }
 
     @Override
-    public void onArtistSelected(String artistId) {
+    public void onArtistSelected(String artistId, String artistName) {
         if (mTwoPane) {
             /// TODO: replace main fragment with the songs fragment
         } else {
             Intent resultIntent = new Intent(this, ArtistSongsActivity.class);
             resultIntent.putExtra("artistId", artistId);
+            resultIntent.putExtra("artistName", artistName);
             resultIntent.setAction(ARTIST_SONGS_ACTION);
 
             startActivity(resultIntent);

@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -27,35 +28,21 @@ import retrofit.client.Response;
 public class ArtistSongsFragment extends Fragment {
     private static final String TAG = ArtistSongsFragment.class.getSimpleName();
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-
     private OnArtistSongFragmentInteractionListener mListener;
 
     private ArtistSongsAdapter mArtistSongsAdapter;
     private ProgressBar busyIndicator;
+    private TextView mTextViewNoResults;
 
     private boolean hasFinishedFetching = false;
+    private boolean noResults = false;
 
     public ArtistSongsFragment() {
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @return A new instance of fragment ArtistSongsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ArtistSongsFragment newInstance(String param1, String param2) {
+    public static ArtistSongsFragment newInstance() {
         ArtistSongsFragment fragment = new ArtistSongsFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
         fragment.setArguments(args);
         return fragment;
     }
@@ -63,10 +50,6 @@ public class ArtistSongsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-        }
 
         mArtistSongsAdapter = new ArtistSongsAdapter(getActivity(), new ArrayList<Track>() {
         });
@@ -85,7 +68,7 @@ public class ArtistSongsFragment extends Fragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                onSongClicked(((Track) (mArtistSongsAdapter.getItem(i))));
+                onSongClicked(mArtistSongsAdapter.getItem(i));
             }
         });
 
@@ -94,10 +77,14 @@ public class ArtistSongsFragment extends Fragment {
         if (hasFinishedFetching)
             busyIndicator.setVisibility(View.GONE);
 
+        mTextViewNoResults = (TextView) view.findViewById(R.id.text_view_no_results);
+
+        if (noResults)
+            mTextViewNoResults.setVisibility(View.VISIBLE);
+
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onSongClicked(Track song) {
         if (mListener != null) {
             mListener.onSongClicked(song);
@@ -122,12 +109,11 @@ public class ArtistSongsFragment extends Fragment {
     }
 
     public void getSongsForArtist(String artistId) {
-        Log.d("ArtistSong", "getSongsForArtist");
+        Log.d("ArtistSong", "getSongsForArtist: " + artistId);
 
         hasFinishedFetching = false;
         busyIndicator.setVisibility(View.VISIBLE);
 
-        /// TODO: implement this
         SpotifyApi api = new SpotifyApi();
         SpotifyService spotify = api.getService();
         Map<String, Object> options = new HashMap<>();
@@ -145,6 +131,18 @@ public class ArtistSongsFragment extends Fragment {
                             }
                         });
                     }
+                }
+
+                if (tracks.tracks.isEmpty() && getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+
+                        public void run() {
+                            Log.d(TAG, "No results");
+                            noResults = true;
+                            mTextViewNoResults.setVisibility(View.VISIBLE);
+                            Toast.makeText(getActivity(), "No results", Toast.LENGTH_LONG).show();
+                        }
+                    });
                 }
 
                 if (getActivity() != null) {
@@ -176,7 +174,6 @@ public class ArtistSongsFragment extends Fragment {
     }
 
     public interface OnArtistSongFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onSongClicked(Track song);
+        void onSongClicked(Track song);
     }
 }

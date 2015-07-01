@@ -3,6 +3,7 @@ package com.iktwo.spotifystreamer;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,38 +23,22 @@ import retrofit.client.Response;
 public class SearchResultsFragment extends Fragment {
     private static final String TAG = SearchResultsFragment.class.getSimpleName();
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-
     private ProgressBar busyIndicator;
     private SearchResultsAdapter mAdapter;
-    private TextView textViewNoResults;
+    private TextView mTextViewNoResults;
 
     private boolean hasFinishedFetching = false;
     private boolean noResults = false;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
     private GridView gridView;
 
     private ArtistInteractionListener mListener;
 
     public SearchResultsFragment() {
     }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @return A new instance of fragment SearchResultsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static SearchResultsFragment newInstance(String param1) {
+    public static SearchResultsFragment newInstance() {
         SearchResultsFragment fragment = new SearchResultsFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
         fragment.setArguments(args);
         return fragment;
     }
@@ -61,9 +46,6 @@ public class SearchResultsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-        }
 
         setRetainInstance(true);
     }
@@ -76,7 +58,7 @@ public class SearchResultsFragment extends Fragment {
 
         busyIndicator = (ProgressBar) view.findViewById(R.id.busy_indicator);
 
-        textViewNoResults = (TextView) view.findViewById(R.id.text_view_no_results);
+        mTextViewNoResults = (TextView) view.findViewById(R.id.text_view_no_results);
 
         if (hasFinishedFetching)
             busyIndicator.setVisibility(View.GONE);
@@ -85,21 +67,21 @@ public class SearchResultsFragment extends Fragment {
             gridView.setAdapter(mAdapter);
 
         if (noResults)
-            textViewNoResults.setVisibility(View.VISIBLE);
+            mTextViewNoResults.setVisibility(View.VISIBLE);
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                onItemClicked(mAdapter.getItem(i).id);
+                onItemClicked(mAdapter.getItem(i).id, mAdapter.getItem(i).name);
             }
         });
 
         return view;
     }
 
-    public void onItemClicked(String artistId) {
+    public void onItemClicked(String artistId, String artistName) {
         if (mListener != null) {
-            mListener.onArtistSelected(artistId);
+            mListener.onArtistSelected(artistId, artistName);
         }
     }
 
@@ -135,8 +117,9 @@ public class SearchResultsFragment extends Fragment {
                         hasFinishedFetching = true;
 
                         if (artistsPager.artists.items.isEmpty()) {
+                            Log.d(TAG, "No results");
                             noResults = true;
-                            textViewNoResults.setVisibility(View.VISIBLE);
+                            mTextViewNoResults.setVisibility(View.VISIBLE);
                             Toast.makeText(getActivity(), "No results", Toast.LENGTH_LONG).show();
                         }
                     }

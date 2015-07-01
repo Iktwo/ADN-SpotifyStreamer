@@ -11,6 +11,7 @@ import android.view.MenuItem;
 public class SearchResultsActivity extends AppCompatActivity implements ArtistInteractionListener {
     private static final String TAG = SearchResultsActivity.class.getSimpleName();
     private boolean mSearched = false;
+    private String mSearchTerm = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,16 +21,22 @@ public class SearchResultsActivity extends AppCompatActivity implements ArtistIn
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-
         mSearched = (null != savedInstanceState) && savedInstanceState.getBoolean("has-searched");
 
+        if (savedInstanceState != null && savedInstanceState.getString("searchterm") != null)
+            mSearchTerm = savedInstanceState.getString("searchterm");
+
+
         if (getIntent().getAction().equals(Intent.ACTION_SEARCH) && !mSearched) {
+            mSearchTerm = getIntent().getStringExtra(SearchManager.QUERY);
             SearchResultsFragment searchResulstFragment = (SearchResultsFragment) getSupportFragmentManager().findFragmentById(R.id.search_results_fragment);
-            searchResulstFragment.search(getIntent().getStringExtra(SearchManager.QUERY));
+            searchResulstFragment.search(mSearchTerm);
             mSearched = true;
+        }
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(mSearchTerm);
         }
     }
 
@@ -47,9 +54,10 @@ public class SearchResultsActivity extends AppCompatActivity implements ArtistIn
     }
 
     @Override
-    public void onArtistSelected(String artistId) {
+    public void onArtistSelected(String artistId, String artistName) {
         Intent resultIntent = new Intent(this, ArtistSongsActivity.class);
         resultIntent.putExtra("artistId", artistId);
+        resultIntent.putExtra("artistName", artistName);
         resultIntent.setAction(MainActivity.ARTIST_SONGS_ACTION);
 
         startActivity(resultIntent);
@@ -59,5 +67,6 @@ public class SearchResultsActivity extends AppCompatActivity implements ArtistIn
     protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
         state.putBoolean("has-searched", mSearched);
+        state.putString("searchterm", mSearchTerm);
     }
 }

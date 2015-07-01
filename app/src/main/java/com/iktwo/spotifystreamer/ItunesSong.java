@@ -9,7 +9,7 @@ public class ItunesSong {
     @SerializedName("im:name")
     public Name name;
     @SerializedName("im:image")
-    public List<Image> image = new ArrayList<Image>();
+    public List<Image> image = new ArrayList<>();
     @SerializedName("im:artist")
     public Artist artist;
 
