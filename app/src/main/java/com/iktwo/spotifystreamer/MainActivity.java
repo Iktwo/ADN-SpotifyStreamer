@@ -4,6 +4,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -17,6 +18,8 @@ public class MainActivity extends AppCompatActivity implements ArtistInteraction
 
     private boolean mTwoPane;
 
+    private TopTracksFragment mTopTracksFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,7 +30,11 @@ public class MainActivity extends AppCompatActivity implements ArtistInteraction
 
         if (findViewById(R.id.frame_layout_details) != null) {
             /// TODO: implement two pane mode in stage 2
-            // mTwoPane = true;
+             mTwoPane = true;
+
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            mTopTracksFragment = new TopTracksFragment();
+            fragmentManager.beginTransaction().replace(R.id.frame_layout_details, mTopTracksFragment).commit();
 
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
