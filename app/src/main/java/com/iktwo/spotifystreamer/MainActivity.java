@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -15,6 +16,9 @@ public class MainActivity extends AppCompatActivity implements ArtistInteraction
     public static final String ARTIST_SONGS_ACTION = "com.iktwo.spotifystreamer.ARTIST_SONGS";
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String SEARCH_RESULTS_FRAGMENT_TAG = "SearchResultsFragment";
+    private static final String ARTIST_SONGS_FRAGMENT_TAG = "ArtistSongsFragment";
+    private static final String TOP_TRACKS_FRAGMENT_TAG = "TopTracksFragment";
 
     private boolean mTwoPane;
 
@@ -36,6 +40,9 @@ public class MainActivity extends AppCompatActivity implements ArtistInteraction
             mTopTracksFragment = new TopTracksFragment();
             fragmentManager.beginTransaction().replace(R.id.frame_layout_details, mTopTracksFragment).commit();
 
+            SearchResultsFragment mSearchResultsFragment = new SearchResultsFragment();
+            fragmentManager.beginTransaction().replace(R.id.frame_layout_search, mSearchResultsFragment, SEARCH_RESULTS_FRAGMENT_TAG).commit();
+
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
             // ((ItemListFragment) getSupportFragmentManager()
@@ -54,6 +61,10 @@ public class MainActivity extends AppCompatActivity implements ArtistInteraction
         super.onNewIntent(intent);
 
         if (mTwoPane) {
+            if (getSupportFragmentManager().findFragmentByTag(SEARCH_RESULTS_FRAGMENT_TAG) != null) {
+                SearchResultsFragment searchResultsFragment = (SearchResultsFragment) getSupportFragmentManager().findFragmentByTag(SEARCH_RESULTS_FRAGMENT_TAG);
+                searchResultsFragment.search(intent.getStringExtra(SearchManager.QUERY));
+            }
             /// TODO: if dual pane, put results here, if single pane start searchReusltsActivity
         } else {
             if (intent.getAction().equals(Intent.ACTION_SEARCH)) {

@@ -28,7 +28,7 @@ public class SearchResultsAdapter extends ArrayAdapter<Artist> {
         final Artist artist = getItem(position);
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.artist_delegate, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.search_result_delegate, parent, false);
             holder = new ViewHolder();
             holder.background = convertView.findViewById(R.id.background);
             holder.title = (TextView) convertView.findViewById(R.id.text_view_artist);
