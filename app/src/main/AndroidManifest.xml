@@ -41,6 +41,10 @@
             android:name=".ArtistSongsActivity"
             android:label="@string/title_activity_artist_songs" >
         </activity>
+        <activity
+            android:name=".PlaybackActivity"
+            android:label="@string/title_activity_playback" >
+        </activity>
     </application>
 
 </manifest>
