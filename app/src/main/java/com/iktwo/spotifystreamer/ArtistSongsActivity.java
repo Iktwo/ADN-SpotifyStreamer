@@ -1,5 +1,6 @@
 package com.iktwo.spotifystreamer;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -9,6 +10,8 @@ import android.view.MenuItem;
 import kaaes.spotify.webapi.android.models.Track;
 
 public class ArtistSongsActivity extends AppCompatActivity implements ArtistSongsFragment.OnArtistSongFragmentInteractionListener {
+    private static final String TAG = ArtistSongsActivity.class.getName();
+
     private boolean mSearched = false;
 
     @Override
@@ -58,7 +61,9 @@ public class ArtistSongsActivity extends AppCompatActivity implements ArtistSong
 
     @Override
     public void onSongClicked(Track song) {
-
+        Intent resultIntent = new Intent(this, PlaybackActivity.class);
+        resultIntent.putExtra("song", song);
+        startActivity(resultIntent);
     }
 
     @Override
