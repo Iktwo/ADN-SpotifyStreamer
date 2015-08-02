@@ -2,10 +2,15 @@ package com.iktwo.spotifystreamer;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import kaaes.spotify.webapi.android.models.Track;
 
@@ -60,9 +65,10 @@ public class ArtistSongsActivity extends AppCompatActivity implements ArtistSong
     }
 
     @Override
-    public void onSongClicked(Track song) {
+    public void onSongClicked(Integer index, List<Track> songs) {
         Intent resultIntent = new Intent(this, PlaybackActivity.class);
-        resultIntent.putExtra("song", song);
+        resultIntent.putExtra("index", index);
+        resultIntent.putParcelableArrayListExtra("songs", new ArrayList<Track>(songs));
         startActivity(resultIntent);
     }
 

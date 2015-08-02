@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.models.Track;
@@ -17,8 +18,11 @@ import kaaes.spotify.webapi.android.models.Track;
 public class ArtistSongsAdapter extends ArrayAdapter<Track> {
     private static final String TAG = ArtistSongsAdapter.class.getSimpleName();
 
+    private List<Track> mSongs;
+
     public ArtistSongsAdapter(Activity context, List<Track> songs) {
         super(context, 0, songs);
+        mSongs = songs;
     }
 
     @Override
@@ -58,6 +62,10 @@ public class ArtistSongsAdapter extends ArrayAdapter<Track> {
         }
 
         return convertView;
+    }
+
+    public List<Track> getSongs() {
+        return mSongs;
     }
 
     static class ViewHolder {

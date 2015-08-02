@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -68,7 +69,7 @@ public class ArtistSongsFragment extends Fragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                onSongClicked(mArtistSongsAdapter.getItem(i));
+                onSongClicked(i, mArtistSongsAdapter.getSongs());
             }
         });
 
@@ -85,9 +86,9 @@ public class ArtistSongsFragment extends Fragment {
         return view;
     }
 
-    public void onSongClicked(Track song) {
+    public void onSongClicked(Integer index, List<Track> songs) {
         if (mListener != null) {
-            mListener.onSongClicked(song);
+            mListener.onSongClicked(index, songs);
         }
     }
 
@@ -172,6 +173,6 @@ public class ArtistSongsFragment extends Fragment {
     }
 
     public interface OnArtistSongFragmentInteractionListener {
-        void onSongClicked(Track song);
+        void onSongClicked(Integer index, List<Track> songs);
     }
 }

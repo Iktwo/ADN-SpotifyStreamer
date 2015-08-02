@@ -1,11 +1,16 @@
 package com.iktwo.spotifystreamer;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import java.util.ArrayList;
+
+import kaaes.spotify.webapi.android.models.Track;
 
 public class PlaybackActivity extends AppCompatActivity implements PlaybackFragment.OnFragmentInteractionListener {
 
@@ -16,6 +21,13 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        Intent intent = getIntent();
+
+        if (intent != null) {
+            Integer playIndex = intent.getIntExtra("index", -1);
+            ArrayList<Track> tracks = intent.getParcelableArrayListExtra("songs");
+        }
     }
 
     @Override
