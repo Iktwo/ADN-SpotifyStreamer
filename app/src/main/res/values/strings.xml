@@ -12,4 +12,7 @@
     <string name="title_activity_artist_songs">ArtistSongsActivity</string>
     <string name="no_results">No results found</string>
     <string name="title_activity_playback">PlaybackActivity</string>
+    <string name="previous_button_description">Previous button</string>
+    <string name="next_button_description">Next button</string>
+    <string name="play_pause_button_description">Play / Pause button</string>
 </resources>
