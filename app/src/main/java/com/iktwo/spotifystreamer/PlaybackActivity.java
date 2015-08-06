@@ -67,6 +67,11 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
             tracks = intent.getParcelableArrayListExtra("songs");
 
             PlaybackFragment playbackFragment = (PlaybackFragment) getSupportFragmentManager().findFragmentById(R.id.playback_fragment);
+            if (tracks.size() > playIndex) {
+                Track t = tracks.get(playIndex);
+                if (!t.album.images.isEmpty())
+                    playbackFragment.setTrackArt(t.album.images.get(0).url);
+            }
         }
     }
 
