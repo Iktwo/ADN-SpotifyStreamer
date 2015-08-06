@@ -65,6 +65,8 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
         if (intent != null) {
             Integer playIndex = intent.getIntExtra("index", -1);
             tracks = intent.getParcelableArrayListExtra("songs");
+
+            PlaybackFragment playbackFragment = (PlaybackFragment) getSupportFragmentManager().findFragmentById(R.id.playback_fragment);
         }
     }
 

@@ -30,7 +30,7 @@ public class ArtistSongsActivity extends AppCompatActivity implements ArtistSong
         if (getSupportActionBar() != null)
             getSupportActionBar().setTitle(getIntent().getStringExtra("artistName"));
 
-        ArtistSongsFragment mArtistSongsFragment = (ArtistSongsFragment) getFragmentManager().findFragmentById(R.id.artist_songs_fragment);
+        ArtistSongsFragment mArtistSongsFragment = (ArtistSongsFragment) getSupportFragmentManager().findFragmentById(R.id.artist_songs_fragment);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);

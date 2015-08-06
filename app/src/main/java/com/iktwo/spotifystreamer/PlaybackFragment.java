@@ -1,8 +1,8 @@
 package com.iktwo.spotifystreamer;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +14,10 @@ import com.squareup.picasso.Picasso;
 public class PlaybackFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_THUMBNAIL_URL = "thumbnail_url";
     private static final String ARG_PARAM2 = "param2";
+
+    private ImageView thumbnail;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -39,7 +41,7 @@ public class PlaybackFragment extends Fragment {
     public static PlaybackFragment newInstance(String param1, String param2) {
         PlaybackFragment fragment = new PlaybackFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_THUMBNAIL_URL, param1);
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
@@ -49,7 +51,7 @@ public class PlaybackFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam1 = getArguments().getString(ARG_THUMBNAIL_URL);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
@@ -59,7 +61,7 @@ public class PlaybackFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_playback, container, false);
 
-        ImageView thumbnail = (ImageView) view.findViewById(R.id.image_view_thumbnail);
+        thumbnail = (ImageView) view.findViewById(R.id.image_view_thumbnail);
 
         Picasso.with(getActivity())
                 .load(R.drawable.placeholder_artist)
@@ -100,12 +102,18 @@ public class PlaybackFragment extends Fragment {
         mListener = null;
     }
 
+    public void setTrackArt(String url) {
+        Picasso.with(getActivity())
+                .load(url)
+                .into(thumbnail);
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p>
+     * <p/>
      * See the Android Training lesson <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
@@ -114,5 +122,4 @@ public class PlaybackFragment extends Fragment {
         // TODO: Update argument type and name
         public void onFragmentInteraction();
     }
-
 }
