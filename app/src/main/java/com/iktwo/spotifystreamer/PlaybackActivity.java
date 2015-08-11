@@ -60,6 +60,10 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         Intent intent = getIntent();
 
         if (intent != null) {

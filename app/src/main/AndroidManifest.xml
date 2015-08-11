@@ -45,11 +45,16 @@
 
         <activity
             android:name=".ArtistSongsActivity"
-            android:label="@string/title_activity_artist_songs" />
+            android:label="@string/title_activity_artist_songs"
+            android:launchMode="singleTop" />
 
         <activity
             android:name=".PlaybackActivity"
-            android:label="@string/title_activity_playback" />
+            android:label="@string/title_activity_playback">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.iktwo.spotifystreamer.ArtistSongsActivity" />
+        </activity>
 
         <service
             android:name=".MusicService"
