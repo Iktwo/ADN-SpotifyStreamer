@@ -105,6 +105,7 @@ public class PlaybackFragment extends Fragment {
     public void setTrackArt(String url) {
         Picasso.with(getActivity())
                 .load(url)
+                .placeholder(R.drawable.placeholder_artist)
                 .into(thumbnail);
     }
 

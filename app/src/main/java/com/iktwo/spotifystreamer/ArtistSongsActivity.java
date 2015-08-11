@@ -18,6 +18,7 @@ public class ArtistSongsActivity extends AppCompatActivity implements ArtistSong
     private static final String TAG = ArtistSongsActivity.class.getName();
 
     private boolean mSearched = false;
+    private String mArtist;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +28,10 @@ public class ArtistSongsActivity extends AppCompatActivity implements ArtistSong
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mArtist = getIntent().getStringExtra("artistName");
+
         if (getSupportActionBar() != null)
-            getSupportActionBar().setTitle(getIntent().getStringExtra("artistName"));
+            getSupportActionBar().setTitle(mArtist);
 
         ArtistSongsFragment mArtistSongsFragment = (ArtistSongsFragment) getSupportFragmentManager().findFragmentById(R.id.artist_songs_fragment);
 
@@ -67,6 +70,7 @@ public class ArtistSongsActivity extends AppCompatActivity implements ArtistSong
     @Override
     public void onSongClicked(Integer index, List<Track> songs) {
         Intent resultIntent = new Intent(this, PlaybackActivity.class);
+        resultIntent.putExtra("artistName", mArtist);
         resultIntent.putExtra("index", index);
         resultIntent.putParcelableArrayListExtra("songs", new ArrayList<Track>(songs));
         startActivity(resultIntent);
