@@ -9,7 +9,6 @@
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
         card_view:cardCornerRadius="0dp"
-        card_view:cardUseCompatPadding="true"
         card_view:cardElevation="6dp">
 
         <android.support.v7.widget.Toolbar
