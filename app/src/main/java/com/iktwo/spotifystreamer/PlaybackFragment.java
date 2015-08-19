@@ -3,6 +3,7 @@ package com.iktwo.spotifystreamer;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,8 @@ public class PlaybackFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    ImageButton imageButtonPlayPause;
 
     public PlaybackFragment() {
         // Required empty public constructor
@@ -67,8 +70,8 @@ public class PlaybackFragment extends Fragment {
                 .load(R.drawable.placeholder_artist)
                 .into(thumbnail);
 
-        ImageButton ib = (ImageButton) view.findViewById(R.id.button_playpause);
-        ib.setOnClickListener(new View.OnClickListener() {
+        imageButtonPlayPause = (ImageButton) view.findViewById(R.id.button_playpause);
+        imageButtonPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onButtonPressed();
@@ -109,16 +112,14 @@ public class PlaybackFragment extends Fragment {
                 .into(thumbnail);
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
+    public void setPlaybackState(int state) {
+        if (state == PlaybackStateCompat.STATE_PLAYING && imageButtonPlayPause != null)
+            imageButtonPlayPause.setImageResource(R.drawable.ic_pause_white);
+        else if (state == PlaybackStateCompat.STATE_PAUSED && imageButtonPlayPause != null)
+            imageButtonPlayPause.setImageResource(R.drawable.ic_play_arrow_white);
+
+    }
+
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction();

@@ -15,4 +15,8 @@
     <string name="previous_button_description">Previous button</string>
     <string name="next_button_description">Next button</string>
     <string name="play_pause_button_description">Play / Pause button</string>
+    <string name="label_previous">Previous</string>
+    <string name="label_next">Next</string>
+    <string name="label_play">Play</string>
+    <string name="label_pause">Pause</string>
 </resources>
