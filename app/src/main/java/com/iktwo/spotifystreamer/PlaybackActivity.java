@@ -159,6 +159,11 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
 
     @Override
     public void onFragmentInteraction() {
-        musicService.playSong();
+        if (musicService != null) {
+            if (musicService.getPlaybackState() == PlaybackStateCompat.STATE_PLAYING)
+                musicService.pauseSong();
+            else
+                musicService.playSong();
+        }
     }
 }

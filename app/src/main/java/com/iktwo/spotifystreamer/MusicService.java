@@ -234,6 +234,12 @@ public class MusicService extends Service implements MusicPlayback.Callback {
         return false;
     }
 
+    public void pauseSong() {
+        mMusicPlayback.pause();
+        mDelayedStopHandler.removeCallbacksAndMessages(null);
+        mDelayedStopHandler.sendEmptyMessageDelayed(0, STOP_DELAY);
+    }
+
     private static class DelayedStopHandler extends Handler {
         private final WeakReference<MusicService> mWeakReference;
 
