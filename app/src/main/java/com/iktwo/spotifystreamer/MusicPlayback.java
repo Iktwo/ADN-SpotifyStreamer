@@ -154,7 +154,7 @@ public class MusicPlayback implements OnAudioFocusChangeListener, OnCompletionLi
             configMediaPlayerState();
         } else {
             mState = PlaybackStateCompat.STATE_STOPPED;
-            relaxResources(false); // release everything except MediaPlayer
+            relaxResources(false);
 
             /*MediaMetadataCompat track = mMusicProvider.getMusic(
                     MediaIDHelper.extractMusicIDFromMediaID(item.getDescription().getMediaId()));
@@ -174,7 +174,6 @@ public class MusicPlayback implements OnAudioFocusChangeListener, OnCompletionLi
 
                 mMediaPlayer.prepareAsync();
 
-                // Prevents the Wifi radio from going to sleep while the song is playing
                 mWifiLock.acquire();
 
                 if (mCallback != null) {

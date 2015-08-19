@@ -3,11 +3,9 @@ package com.iktwo.spotifystreamer;
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
+import android.graphics.Bitmap;
 import android.media.session.MediaSession;
 import android.os.Binder;
 import android.os.Build;
@@ -17,6 +15,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.SystemClock;
 import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.media.MediaRouter;
@@ -24,6 +23,7 @@ import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
 import kaaes.spotify.webapi.android.models.Track;
 
@@ -52,7 +52,7 @@ public class MusicService extends Service implements MusicPlayback.Callback {
     private MediaRouter mMediaRouter;
     private Bundle mSessionExtras;
     private MediaNotificationManager mMediaNotificationManager;
-
+    private List<MediaSessionCompat.QueueItem> mPlayingQueue;
 
     private boolean mServiceStarted;
 
@@ -185,8 +185,27 @@ public class MusicService extends Service implements MusicPlayback.Callback {
         }
 
         MediaSessionCompat.QueueItem q;
-        q = new MediaSessionCompat.QueueItem(new MediaDescriptionCompat.Builder().build(), 1);
+        q = new MediaSessionCompat.QueueItem(
+                new MediaDescriptionCompat.Builder()
+                        .setTitle("TITLE :)")
+                        .build(),
+                1);
+        updateMetadata();
         mMusicPlayback.play(q);
+
+        mSession.setMetadata(
+                new MediaMetadataCompat.Builder()
+                        .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, "TITLE :D")
+                        .build()
+        );
+
+        if (!mSession.isActive()) {
+            mSession.setActive(true);
+        }
+    }
+
+    private void updateMetadata() {
+        /// TODO: implement this
     }
 
     @Override
@@ -335,7 +354,7 @@ public class MusicService extends Service implements MusicPlayback.Callback {
             Log.d(TAG, "play");
 
             /// TODO: verify this
-                handlePlayRequest();
+            handlePlayRequest();
         }
 
         @Override
