@@ -140,6 +140,21 @@ public class MusicPlayback implements OnAudioFocusChangeListener, OnCompletionLi
         this.mCurrentPosition = pos;
     }
 
+
+    public void stop(boolean notifyListeners) {
+        mState = PlaybackStateCompat.STATE_STOPPED;
+        if (notifyListeners && mCallback != null) {
+            mCallback.onPlaybackStatusChanged(mState);
+        }
+        mCurrentPosition = getCurrentStreamPosition();
+        giveUpAudioFocus();
+        unregisterAudioNoisyReceiver();
+        relaxResources(true);
+        if (mWifiLock.isHeld()) {
+            mWifiLock.release();
+        }
+    }
+
     public void play(MediaSessionCompat.QueueItem item) {
         mResumePlaybackOnFocusGain = true;
         tryToGetAudioFocus();

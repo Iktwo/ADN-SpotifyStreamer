@@ -63,6 +63,15 @@ public class MusicService extends Service implements MusicPlayback.Callback {
         return mMetadataForTracks.get(index);
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null) {
+            mTrackIndex = intent.getIntExtra("index", 0);
+        }
+
+        return super.onStartCommand(intent, flags, startId);
+    }
+
     public void onCreate() {
         super.onCreate();
 
@@ -122,19 +131,18 @@ public class MusicService extends Service implements MusicPlayback.Callback {
     private long getAvailableActions() {
         long actions = PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID;
 
-        /// TODO: check this
-//        if (mPlaybackQueue == null || mPlaybackQueue.isEmpty()) {
-//            return actions;
-//        }
-        if (mMusicPlayback.isPlaying()) {
+        if (mPlaybackQueue == null || mPlaybackQueue.isEmpty())
+            return actions;
+
+        if (mMusicPlayback.isPlaying())
             actions |= PlaybackStateCompat.ACTION_PAUSE;
-        }
-//        if (mCurrentIndexOnQueue > 0) {
-//            actions |= PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
-//        }
-//        if (mCurrentIndexOnQueue < mPlaybackQueue.size() - 1) {
-//            actions |= PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
-//        }
+
+        if (mTrackIndex > 0)
+            actions |= PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
+
+        if (mTrackIndex < mPlaybackQueue.size() - 1)
+            actions |= PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
+
         return actions;
     }
 
@@ -177,7 +185,7 @@ public class MusicService extends Service implements MusicPlayback.Callback {
 
 
     private void handlePlayRequest() {
-        Log.d(TAG, "handlePlayRequest: mState=" + mMusicPlayback.getState());
+        Log.d(TAG, "handlePlayRequest: mState=" + mMusicPlayback.getState() + " for index: " + Integer.toString(mTrackIndex));
 
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         if (!mServiceStarted) {
@@ -189,25 +197,24 @@ public class MusicService extends Service implements MusicPlayback.Callback {
         mSession.setMetadata(mMetadataForTracks.get(mTrackIndex));
         updateMetadata();
         mMusicPlayback.play(mPlaybackQueue.get(mTrackIndex));
-//
-//        MediaSessionCompat.QueueItem q;
-//        q = new MediaSessionCompat.QueueItem(
-//                new MediaDescriptionCompat.Builder()
-//                        .setTitle("TITLE :)")
-//                        .build(),
-//                1);
-//        updateMetadata();
-//        mMusicPlayback.play(q);
-//
-//        mSession.setMetadata(
-//                new MediaMetadataCompat.Builder()
-//                        .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, "TITLE :D")
-//                        .build()
-//        );
 
         if (!mSession.isActive()) {
             mSession.setActive(true);
         }
+    }
+
+    private void handleStopRequest(String withError) {
+        Log.d(TAG, "handleStopRequest: mState=" + mMusicPlayback.getState() + " error=" + withError);
+        mMusicPlayback.stop(true);
+        // reset the delayed stop handler.
+        mDelayedStopHandler.removeCallbacksAndMessages(null);
+        mDelayedStopHandler.sendEmptyMessageDelayed(0, STOP_DELAY);
+
+        updatePlaybackState(withError);
+
+        // service is no longer necessary. Will be started again if needed.
+        stopSelf();
+        mServiceStarted = false;
     }
 
     private void updateMetadata() {
@@ -241,8 +248,7 @@ public class MusicService extends Service implements MusicPlayback.Callback {
 
     /// TODO: check if we need to pass the index here
     public void playSong() {
-        Track playSong = tracks.get(mTrackIndex);
-
+        // Track playSong = tracks.get(mTrackIndex);
         handlePlayRequest();
     }
 
@@ -279,7 +285,15 @@ public class MusicService extends Service implements MusicPlayback.Callback {
     }
 
     public void setSong(int trackIndex) {
-        this.mTrackIndex = trackIndex;
+        /// TODO: Check what to do if paused
+        mTrackIndex = trackIndex;
+
+        if (mMusicPlayback.getState() == PlaybackStateCompat.STATE_PLAYING)
+            handlePlayRequest();
+    }
+
+    public int getCurrentTrackIndex() {
+        return mTrackIndex;
     }
 
     @Override
@@ -294,6 +308,7 @@ public class MusicService extends Service implements MusicPlayback.Callback {
 
     public void pauseSong() {
         mMusicPlayback.pause();
+        // reset the delayed stop handler.
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mDelayedStopHandler.sendEmptyMessageDelayed(0, STOP_DELAY);
     }
@@ -428,6 +443,13 @@ public class MusicService extends Service implements MusicPlayback.Callback {
         @Override
         public void onSkipToNext() {
             Log.d(TAG, "skipToNext");
+            mTrackIndex++;
+
+            if (mPlaybackQueue != null && mTrackIndex >= mPlaybackQueue.size()) {
+                mTrackIndex = 0;
+            }
+
+            handlePlayRequest();
         }
 
         @Override

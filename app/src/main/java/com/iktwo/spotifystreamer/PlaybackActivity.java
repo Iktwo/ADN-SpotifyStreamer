@@ -19,11 +19,12 @@ import java.util.ArrayList;
 
 import kaaes.spotify.webapi.android.models.Track;
 
-public class PlaybackActivity extends AppCompatActivity implements PlaybackFragment.OnFragmentInteractionListener {
+public class PlaybackActivity extends AppCompatActivity implements PlaybackFragment.OnPlaybackFragmentInteractionListener {
     private static final String TAG = PlaybackActivity.class.getName();
 
     private MusicService musicService;
     private Intent playbackIntent;
+    private int playbackIndex;
     private boolean musicServiceBound = false;
     private ArrayList<Track> tracks;
 
@@ -64,10 +65,10 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
             musicService.setList(tracks);
             musicServiceBound = true;
 
+            if (musicService.getCurrentTrackIndex() != playbackIndex)
+                musicService.setSong(playbackIndex);
+
             setPlaybackState(musicService.getPlaybackState());
-
-            Log.d(TAG, "????? connected to service");
-
             connectToSession(musicService.getSessionToken());
         }
 
@@ -98,14 +99,10 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
 
         if (playbackIntent == null) {
             playbackIntent = new Intent(this, MusicService.class);
+            playbackIntent.putExtra("index", playbackIndex);
             bindService(playbackIntent, musicConnection, Context.BIND_AUTO_CREATE);
             startService(playbackIntent);
         }
-
-        if (musicService != null)
-            Log.d(TAG, "NOT NULL HERE :D");
-
-
     }
 
     public void setPlaybackState(int state) {
@@ -123,11 +120,6 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (musicService != null)
-            Log.d(TAG, "SERVICE IS NOT NULL");
-        else
-            Log.d(TAG, "service is null");
-
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(getString(R.string.title_activity_playback) + " - " + getIntent().getStringExtra("artistName"));
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -136,12 +128,14 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
         Intent intent = getIntent();
 
         if (intent != null) {
-            Integer playIndex = intent.getIntExtra("index", -1);
+            playbackIndex = intent.getIntExtra("index", -1);
             tracks = intent.getParcelableArrayListExtra("songs");
 
             PlaybackFragment playbackFragment = (PlaybackFragment) getSupportFragmentManager().findFragmentById(R.id.playback_fragment);
-            if (tracks.size() > playIndex) {
-                Track t = tracks.get(playIndex);
+
+
+            if (tracks.size() > playbackIndex) {
+                Track t = tracks.get(playbackIndex);
                 if (!t.album.images.isEmpty())
                     playbackFragment.setTrackArt(t.album.images.get(0).url);
             }
@@ -152,9 +146,8 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
     protected void onDestroy() {
         super.onDestroy();
 
-        if (musicConnection != null) {
+        if (musicConnection != null)
             unbindService(musicConnection);
-        }
     }
 
     @Override

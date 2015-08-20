@@ -25,7 +25,7 @@ public class PlaybackFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
+    private OnPlaybackFragmentInteractionListener mListener;
 
     ImageButton imageButtonPlayPause;
 
@@ -93,7 +93,7 @@ public class PlaybackFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mListener = (OnFragmentInteractionListener) context;
+            mListener = (OnPlaybackFragmentInteractionListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnFragmentInteractionListener");
         }
@@ -120,8 +120,8 @@ public class PlaybackFragment extends Fragment {
 
     }
 
-    public interface OnFragmentInteractionListener {
+    public interface OnPlaybackFragmentInteractionListener {
         // TODO: Update argument type and name
-        public void onFragmentInteraction();
+        void onFragmentInteraction();
     }
 }
