@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.PowerManager;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -161,7 +162,11 @@ public class MusicPlayback implements OnAudioFocusChangeListener, OnCompletionLi
 
             String source = track.getString(MusicProvider.CUSTOM_METADATA_TRACK_SOURCE); */
 
-            String source = "http://www.stephaniequinn.com/Music/Allegro%20from%20Duet%20in%20C%20Major.mp3";
+            String source = "";
+            Uri mediaUri = item.getDescription().getMediaUri();
+
+            if (mediaUri != null)
+                source = mediaUri.toString();
 
             try {
                 Log.d(TAG, "going to create mp if null");

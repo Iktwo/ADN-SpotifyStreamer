@@ -5,8 +5,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.media.session.MediaSession;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -40,8 +40,9 @@ public class MusicService extends Service implements MusicPlayback.Callback {
 
     private static final String TAG = MusicService.class.getName();
 
-    private int trackIndex = 0;
+    private int mTrackIndex = 0;
     private ArrayList<Track> tracks;
+    private ArrayList<MediaMetadataCompat> mMetadataForTracks;
 
     private ComponentName mEventReceiver;
 
@@ -52,21 +53,25 @@ public class MusicService extends Service implements MusicPlayback.Callback {
     private MediaRouter mMediaRouter;
     private Bundle mSessionExtras;
     private MediaNotificationManager mMediaNotificationManager;
-    private List<MediaSessionCompat.QueueItem> mPlayingQueue;
+    private List<MediaSessionCompat.QueueItem> mPlaybackQueue;
 
     private boolean mServiceStarted;
 
     private DelayedStopHandler mDelayedStopHandler = new DelayedStopHandler(this);
 
+    public MediaMetadataCompat getTrack(int index) {
+        return mMetadataForTracks.get(index);
+    }
+
     public void onCreate() {
         super.onCreate();
 
+        mPlaybackQueue = new ArrayList<>();
         mMusicBinder = new MusicBinder();
+        mMetadataForTracks = new ArrayList<>();
 
         // Log.d(TAG, "STATE: when creating act" + Integer.toString(mMusicBinder.getService().getPlaybackState()));
 
-
-        // mPlayingQueue = new ArrayList<>();
         // mMusicProvider = new MusicProvider();
 
         mEventReceiver = new ComponentName(getPackageName(), MediaButtonReceiver.class.getName());
@@ -118,7 +123,7 @@ public class MusicService extends Service implements MusicPlayback.Callback {
         long actions = PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID;
 
         /// TODO: check this
-//        if (mPlayingQueue == null || mPlayingQueue.isEmpty()) {
+//        if (mPlaybackQueue == null || mPlaybackQueue.isEmpty()) {
 //            return actions;
 //        }
         if (mMusicPlayback.isPlaying()) {
@@ -127,7 +132,7 @@ public class MusicService extends Service implements MusicPlayback.Callback {
 //        if (mCurrentIndexOnQueue > 0) {
 //            actions |= PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
 //        }
-//        if (mCurrentIndexOnQueue < mPlayingQueue.size() - 1) {
+//        if (mCurrentIndexOnQueue < mPlaybackQueue.size() - 1) {
 //            actions |= PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
 //        }
         return actions;
@@ -158,8 +163,8 @@ public class MusicService extends Service implements MusicPlayback.Callback {
 
         // Set the activeQueueItemId if the current index is valid.
         /// TODO: check this
-//        if (QueueHelper.isIndexPlayable(mCurrentIndexOnQueue, mPlayingQueue)) {
-//            MediaSessionCompat.QueueItem item = mPlayingQueue.get(mCurrentIndexOnQueue);
+//        if (QueueHelper.isIndexPlayable(mCurrentIndexOnQueue, mPlaybackQueue)) {
+//            MediaSessionCompat.QueueItem item = mPlaybackQueue.get(mCurrentIndexOnQueue);
 //            stateBuilder.setActiveQueueItemId(item.getQueueId());
 //        }
 
@@ -177,27 +182,28 @@ public class MusicService extends Service implements MusicPlayback.Callback {
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         if (!mServiceStarted) {
             Log.v(TAG, "Starting service");
-            // The MusicService needs to keep running even after the calling MediaBrowser
-            // is disconnected. Call startService(Intent) and then stopSelf(..) when we no longer
-            // need to play media.
             startService(new Intent(getApplicationContext(), MusicService.class));
             mServiceStarted = true;
         }
 
-        MediaSessionCompat.QueueItem q;
-        q = new MediaSessionCompat.QueueItem(
-                new MediaDescriptionCompat.Builder()
-                        .setTitle("TITLE :)")
-                        .build(),
-                1);
+        mSession.setMetadata(mMetadataForTracks.get(mTrackIndex));
         updateMetadata();
-        mMusicPlayback.play(q);
-
-        mSession.setMetadata(
-                new MediaMetadataCompat.Builder()
-                        .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, "TITLE :D")
-                        .build()
-        );
+        mMusicPlayback.play(mPlaybackQueue.get(mTrackIndex));
+//
+//        MediaSessionCompat.QueueItem q;
+//        q = new MediaSessionCompat.QueueItem(
+//                new MediaDescriptionCompat.Builder()
+//                        .setTitle("TITLE :)")
+//                        .build(),
+//                1);
+//        updateMetadata();
+//        mMusicPlayback.play(q);
+//
+//        mSession.setMetadata(
+//                new MediaMetadataCompat.Builder()
+//                        .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, "TITLE :D")
+//                        .build()
+//        );
 
         if (!mSession.isActive()) {
             mSession.setActive(true);
@@ -205,6 +211,10 @@ public class MusicService extends Service implements MusicPlayback.Callback {
     }
 
     private void updateMetadata() {
+        MediaSessionCompat.QueueItem queueItem = mPlaybackQueue.get(mTrackIndex);
+        //String musicId = MediaIDHelper.extractMusicIDFromMediaID(queueItem.getDescription().getMediaId());
+        //MediaMetadataCompat track = mMusicProvider.getMusic(musicId);
+        //final String trackId = track.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
         /// TODO: implement this
     }
 
@@ -229,18 +239,47 @@ public class MusicService extends Service implements MusicPlayback.Callback {
         Log.d(TAG, "onMetadataChanged" + mediaId);
     }
 
+    /// TODO: check if we need to pass the index here
     public void playSong() {
-        Track playSong = tracks.get(trackIndex);
+        Track playSong = tracks.get(mTrackIndex);
 
         handlePlayRequest();
     }
 
     public void setList(ArrayList<Track> tracks) {
+        Log.d(TAG, "Setting list with " + Integer.toString(tracks.size()) + " items");
+
         this.tracks = tracks;
+        mPlaybackQueue.clear();
+        mMetadataForTracks.clear();
+
+        for (int i = 0; i < tracks.size(); ++i) {
+            Track t = tracks.get(i);
+
+            MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
+                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, t.name)
+                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, t.album.name)
+                    .build();
+
+            mMetadataForTracks.add(metadata);
+
+            MediaDescriptionCompat descriptionCompat = new MediaDescriptionCompat
+                    .Builder()
+                    .setTitle(tracks.get(i).name)
+                    .setMediaUri(Uri.parse(tracks.get(i).preview_url))
+                    .build();
+
+            MediaSessionCompat.QueueItem q = new MediaSessionCompat.QueueItem(descriptionCompat, i);
+            mPlaybackQueue.add(q);
+
+            // Log.d(TAG, "Item:" + Integer.toString(i) + " - " + tracks.get(i).name);
+        }
+
+        mSession.setQueue(mPlaybackQueue);
     }
 
     public void setSong(int trackIndex) {
-        this.trackIndex = trackIndex;
+        this.mTrackIndex = trackIndex;
     }
 
     @Override
@@ -353,8 +392,8 @@ public class MusicService extends Service implements MusicPlayback.Callback {
         public void onPlay() {
             Log.d(TAG, "play");
 
-            /// TODO: verify this
-            handlePlayRequest();
+            if (mPlaybackQueue != null && !mPlaybackQueue.isEmpty())
+                handlePlayRequest();
         }
 
         @Override
