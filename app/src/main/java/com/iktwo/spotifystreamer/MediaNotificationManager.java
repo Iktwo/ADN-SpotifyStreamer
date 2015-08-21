@@ -9,12 +9,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.os.RemoteException;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 public class MediaNotificationManager extends BroadcastReceiver {
@@ -241,11 +241,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
         }
 
         notificationBuilder
-                /// TODO: check this
-                //.setStyle(new Notification.MediaStyle()
-                //.setShowActionsInCompactView(
-                //      new int[]{playPauseButtonPosition})  // show only play/pause in compact view
-                //.setMediaSession(mSessionToken))
+                .setStyle(new NotificationCompat.MediaStyle().setMediaSession(mSessionToken).setShowActionsInCompactView(new int[]{playPauseButtonPosition}))
                 .setColor(mNotificationColor)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
