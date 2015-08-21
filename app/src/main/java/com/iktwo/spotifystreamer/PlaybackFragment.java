@@ -3,6 +3,7 @@ package com.iktwo.spotifystreamer;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -139,6 +140,15 @@ public class PlaybackFragment extends Fragment {
         else if (state == PlaybackStateCompat.STATE_PAUSED && imageButtonPlayPause != null)
             imageButtonPlayPause.setImageResource(R.drawable.ic_play_arrow_white);
 
+    }
+
+    public void setMetadata(MediaMetadataCompat metadata) {
+        if (metadata.getDescription().getIconUri() != null) {
+            Picasso.with(getActivity())
+                    .load(metadata.getDescription().getIconUri())
+                    .placeholder(R.drawable.placeholder_artist)
+                    .into(thumbnail);
+        }
     }
 
     public interface OnPlaybackFragmentInteractionListener {

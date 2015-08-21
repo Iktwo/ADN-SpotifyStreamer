@@ -29,8 +29,7 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
     private ArrayList<Track> tracks;
 
     private MediaControllerCompat mMediaController;
-    // Receive callbacks from the MediaController. Here we update our state such as which queue
-    // is being shown, the current title and description and the PlaybackState.
+
     private MediaControllerCompat.Callback mCallback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
@@ -41,7 +40,6 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
             setPlaybackState(state.getState());
 
             Log.d(TAG, "Received playback state change to state " + state.getState());
-            // PlaybackControlsFragment.this.onPlaybackStateChanged(state);
         }
 
         @Override
@@ -49,13 +47,14 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
             if (metadata == null) {
                 return;
             }
-            Log.d(TAG, "Received metadata state change to mediaId=" +
+            Log.d(TAG, "Received metadata state change to mediaId= " +
                     metadata.getDescription().getMediaId() +
                     " song=" + metadata.getDescription().getTitle());
-            // PlaybackControlsFragment.this.onMetadataChanged(metadata);
+
+            setMetadata(metadata);
         }
     };
-    //connect to the service
+
     private ServiceConnection musicConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -84,12 +83,9 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
     private void connectToSession(MediaSessionCompat.Token token) {
         try {
             mMediaController = new MediaControllerCompat(getApplicationContext(), token);
-
-            if (mMediaController != null) {
-                mMediaController.registerCallback(mCallback);
-            }
+            mMediaController.registerCallback(mCallback);
         } catch (RemoteException e) {
-
+            Log.e(TAG, "Exception: " + e.getMessage());
         }
     }
 
@@ -110,6 +106,13 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
 
         if (playbackFragment != null)
             playbackFragment.setPlaybackState(state);
+    }
+
+    private void setMetadata(MediaMetadataCompat metadata) {
+        PlaybackFragment playbackFragment = (PlaybackFragment) getSupportFragmentManager().findFragmentById(R.id.playback_fragment);
+
+        if (playbackFragment != null)
+            playbackFragment.setMetadata(metadata);
     }
 
     @Override
