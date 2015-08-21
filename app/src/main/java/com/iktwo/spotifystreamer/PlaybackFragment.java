@@ -1,6 +1,5 @@
 package com.iktwo.spotifystreamer;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,16 +17,12 @@ public class PlaybackFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_THUMBNAIL_URL = "thumbnail_url";
     private static final String ARG_PARAM2 = "param2";
-
+    ImageButton imageButtonPlayPause;
     private ImageView thumbnail;
-
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
     private OnPlaybackFragmentInteractionListener mListener;
-
-    ImageButton imageButtonPlayPause;
 
     public PlaybackFragment() {
         // Required empty public constructor
@@ -79,6 +74,20 @@ public class PlaybackFragment extends Fragment {
             }
         });
 
+        (view.findViewById(R.id.button_next)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onNextClicked();
+            }
+        });
+
+        (view.findViewById(R.id.button_previous)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onPreviousClicked();
+            }
+        });
+
         return view;
     }
 
@@ -86,6 +95,18 @@ public class PlaybackFragment extends Fragment {
     public void onButtonPressed() {
         if (mListener != null) {
             mListener.onFragmentInteraction();
+        }
+    }
+
+    public void onNextClicked() {
+        if (mListener != null) {
+            mListener.onNextClicked();
+        }
+    }
+
+    public void onPreviousClicked() {
+        if (mListener != null) {
+            mListener.onPreviousClicked();
         }
     }
 
@@ -123,5 +144,9 @@ public class PlaybackFragment extends Fragment {
     public interface OnPlaybackFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction();
+
+        void onNextClicked();
+
+        void onPreviousClicked();
     }
 }

@@ -159,4 +159,14 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
                 musicService.playSong();
         }
     }
+
+    @Override
+    public void onNextClicked() {
+        musicService.nextTrack();
+    }
+
+    @Override
+    public void onPreviousClicked() {
+        musicService.previousTrack();
+    }
 }
