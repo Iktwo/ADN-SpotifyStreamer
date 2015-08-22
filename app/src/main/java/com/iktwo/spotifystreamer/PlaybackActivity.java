@@ -13,13 +13,15 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 
 import kaaes.spotify.webapi.android.models.Track;
 
-public class PlaybackActivity extends AppCompatActivity implements PlaybackFragment.OnPlaybackFragmentInteractionListener {
+public class PlaybackActivity extends AppCompatActivity implements PlaybackFragment.PlaybackFragmentInteractionListener {
     private static final String TAG = PlaybackActivity.class.getName();
 
     private MusicService musicService;
@@ -130,7 +132,24 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_playback);
+
+        Intent i = getIntent();
+
+        if (i != null && i.getBooleanExtra("displayAsDialog", false)) {
+            setTheme(R.style.DialogTheme);
+
+            DisplayMetrics metrics = getResources().getDisplayMetrics();
+            int screenWidth = (int) (metrics.widthPixels * 0.80);
+            int screenHeight = (int) (metrics.heightPixels * 0.80);
+
+            setContentView(R.layout.activity_playback);
+
+            getWindow().setLayout(screenWidth, screenHeight);
+
+        } else {
+            setContentView(R.layout.activity_playback);
+        }
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

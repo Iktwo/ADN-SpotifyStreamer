@@ -12,7 +12,7 @@ import java.util.List;
 
 import kaaes.spotify.webapi.android.models.Track;
 
-public class ArtistSongsActivity extends AppCompatActivity implements ArtistSongsFragment.OnArtistSongFragmentInteractionListener {
+public class ArtistSongsActivity extends AppCompatActivity implements ArtistSongsFragment.ArtistSongFragmentInteractionListener {
     private static final String TAG = ArtistSongsActivity.class.getName();
 
     private boolean mSearched = false;

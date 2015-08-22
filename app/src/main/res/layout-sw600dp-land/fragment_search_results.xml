@@ -19,7 +19,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:indeterminate="true" />
+        android:indeterminate="true"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/text_view_no_results"
@@ -29,5 +30,13 @@
         android:text="@string/no_results"
         android:textColor="@color/primary_text_default_material_dark"
         android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/text_view_search_for_artist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/search_for_artist"
+        android:textColor="@color/primary_text_default_material_dark" />
 
 </RelativeLayout>

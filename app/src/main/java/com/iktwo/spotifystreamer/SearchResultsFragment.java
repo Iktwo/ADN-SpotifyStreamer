@@ -1,6 +1,5 @@
 package com.iktwo.spotifystreamer;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -27,8 +26,9 @@ public class SearchResultsFragment extends Fragment {
     private ProgressBar busyIndicator;
     private SearchResultsAdapter mAdapter;
     private TextView mTextViewNoResults;
+    private TextView mTextViewSearchForArtists;
 
-    private boolean hasFinishedFetching = false;
+    private boolean hasFinishedFetching = true;
     private boolean noResults = false;
 
     private GridView gridView;
@@ -37,9 +37,11 @@ public class SearchResultsFragment extends Fragment {
 
     public SearchResultsFragment() {
     }
-    public static SearchResultsFragment newInstance() {
+
+    public static SearchResultsFragment newInstance(boolean doNotRetainInstance) {
         SearchResultsFragment fragment = new SearchResultsFragment();
         Bundle args = new Bundle();
+        args.putBoolean("DoNotRetainInstance", doNotRetainInstance);
         fragment.setArguments(args);
         return fragment;
     }
@@ -48,6 +50,7 @@ public class SearchResultsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (getArguments() == null || !getArguments().getBoolean("DoNotRetainInstance")) ;
         setRetainInstance(true);
     }
 
@@ -61,14 +64,24 @@ public class SearchResultsFragment extends Fragment {
 
         mTextViewNoResults = (TextView) view.findViewById(R.id.text_view_no_results);
 
+        mTextViewSearchForArtists = (TextView) view.findViewById(R.id.text_view_search_for_artist);
+
         if (hasFinishedFetching)
             busyIndicator.setVisibility(View.GONE);
 
-        if (mAdapter != null)
+        if (mAdapter != null) {
             gridView.setAdapter(mAdapter);
 
-        if (noResults)
+            if (mTextViewSearchForArtists != null)
+                mTextViewSearchForArtists.setVisibility(View.GONE);
+        }
+
+        if (noResults) {
             mTextViewNoResults.setVisibility(View.VISIBLE);
+
+            if (mTextViewSearchForArtists != null)
+                mTextViewSearchForArtists.setVisibility(View.GONE);
+        }
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -92,7 +105,7 @@ public class SearchResultsFragment extends Fragment {
         try {
             mListener = (ArtistInteractionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnFragmentInteractionListener");
+            throw new ClassCastException(context.toString() + " must implement " + ArtistInteractionListener.class.getSimpleName());
         }
     }
 
@@ -103,6 +116,9 @@ public class SearchResultsFragment extends Fragment {
     }
 
     public void search(final String searchTerm) {
+        if (mTextViewSearchForArtists != null)
+            mTextViewSearchForArtists.setVisibility(View.GONE);
+
         hasFinishedFetching = false;
         busyIndicator.setVisibility(View.VISIBLE);
         SpotifyApi api = new SpotifyApi();
@@ -112,6 +128,9 @@ public class SearchResultsFragment extends Fragment {
             public void success(final ArtistsPager artistsPager, Response response) {
                 getActivity().runOnUiThread(new Runnable() {
                     public void run() {
+                        if (mTextViewSearchForArtists != null)
+                            mTextViewSearchForArtists.setVisibility(View.GONE);
+
                         mAdapter = new SearchResultsAdapter(getActivity(), artistsPager.artists.items);
                         gridView.setAdapter(mAdapter);
                         busyIndicator.setVisibility(View.GONE);

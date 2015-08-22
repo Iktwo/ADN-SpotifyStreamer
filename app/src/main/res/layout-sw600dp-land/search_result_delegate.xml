@@ -1,36 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="72dp"
+    android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingLeft="14dp"
-    android:paddingRight="14dp">
+    android:padding="16dp"
+    android:paddingBottom="8dp">
 
     <com.iktwo.spotifystreamer.SquareImageViewByWidth
         android:id="@+id/image_view_thumbnail"
-        android:layout_width="48dp"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:layout_gravity="center_vertical"
         android:scaleType="centerCrop" />
 
     <FrameLayout
         android:id="@+id/background"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="@color/colorPrimary"
-        android:orientation="vertical">
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="4"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:background="@color/colorPrimary">
 
         <TextView
             android:id="@+id/text_view_artist"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
             android:ellipsize="end"
             android:maxLines="1"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="14dp"
-            android:textSize="16sp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
     </FrameLayout>

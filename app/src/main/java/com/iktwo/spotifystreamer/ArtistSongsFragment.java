@@ -1,6 +1,5 @@
 package com.iktwo.spotifystreamer;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -28,7 +27,7 @@ import retrofit.client.Response;
 public class ArtistSongsFragment extends Fragment {
     private static final String TAG = ArtistSongsFragment.class.getSimpleName();
 
-    private OnArtistSongFragmentInteractionListener mListener;
+    private ArtistSongFragmentInteractionListener mListener;
 
     private ArtistSongsAdapter mArtistSongsAdapter;
     private ProgressBar busyIndicator;
@@ -36,13 +35,19 @@ public class ArtistSongsFragment extends Fragment {
 
     private boolean hasFinishedFetching = false;
     private boolean noResults = false;
+    private boolean hasToGetSongs = false;
+    private String mArtistId;
+    private String mArtistName;
 
     public ArtistSongsFragment() {
     }
 
-    public static ArtistSongsFragment newInstance() {
+    public static ArtistSongsFragment newInstance(String artistId, String artistName, boolean skipRetainInstance) {
         ArtistSongsFragment fragment = new ArtistSongsFragment();
         Bundle args = new Bundle();
+        args.putString("artistId", artistId);
+        args.putString("artistName", artistName);
+        args.putBoolean("SkipRetainInstance", skipRetainInstance);
         fragment.setArguments(args);
         return fragment;
     }
@@ -51,10 +56,28 @@ public class ArtistSongsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        boolean skipRetainInstance = false;
+
+        if (getArguments() != null) {
+            if (getArguments().getString("artistId") != null)
+                mArtistId = getArguments().getString("artistId");
+
+            if (getArguments().getString("mArtistName") != null)
+                mArtistName = getArguments().getString("mArtistName");
+
+            hasToGetSongs = true;
+
+            skipRetainInstance = getArguments().getBoolean("SkipRetainInstance");
+        }
+
         mArtistSongsAdapter = new ArtistSongsAdapter(getActivity(), new ArrayList<Track>() {
         });
 
-        setRetainInstance(true);
+
+        if (skipRetainInstance)
+            setRetainInstance(false);
+        else
+            setRetainInstance(true);
     }
 
     @Override
@@ -82,23 +105,25 @@ public class ArtistSongsFragment extends Fragment {
         if (noResults)
             mTextViewNoResults.setVisibility(View.VISIBLE);
 
+        if (hasToGetSongs)
+            getSongsForArtist(mArtistId);
+
         return view;
     }
 
     public void onSongClicked(Integer index, List<Track> songs) {
-        if (mListener != null) {
+        if (mListener != null)
             mListener.onSongClicked(index, songs);
-        }
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mListener = (OnArtistSongFragmentInteractionListener) context;
+            mListener = (ArtistSongFragmentInteractionListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement ArtistSongFragmentInteractionListener");
         }
     }
 
@@ -171,7 +196,7 @@ public class ArtistSongsFragment extends Fragment {
         });
     }
 
-    public interface OnArtistSongFragmentInteractionListener {
+    public interface ArtistSongFragmentInteractionListener {
         void onSongClicked(Integer index, List<Track> songs);
     }
 }

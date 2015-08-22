@@ -43,9 +43,10 @@ public class TopTracksFragment extends Fragment implements HttpAsyncRequest.Asyn
     public TopTracksFragment() {
     }
 
-    public static TopTracksFragment newInstance() {
+    public static TopTracksFragment newInstance(boolean doNotRetainInstance) {
         TopTracksFragment fragment = new TopTracksFragment();
         Bundle args = new Bundle();
+        args.putBoolean("SkipRetainInstance", doNotRetainInstance);
         fragment.setArguments(args);
 
         return fragment;
@@ -58,7 +59,20 @@ public class TopTracksFragment extends Fragment implements HttpAsyncRequest.Asyn
         /// TODO: Store this on a DB and query if empty or last insertion is old
         new HttpAsyncRequest(this).execute("https://itunes.apple.com/us/rss/topsongs/limit=" + Integer.toString(itemsToRequest) + "/json");
 
-        setRetainInstance(true);
+        boolean skipRetainInstance = false;
+
+        if (getArguments() != null) {
+            Log.d(TAG, "getArguments");
+            Log.d(TAG, "SkipRetainInstance: " + Boolean.toString(getArguments().getBoolean("SkipRetainInstance")));
+            skipRetainInstance = getArguments().getBoolean("SkipRetainInstance");
+        } else {
+            Log.d(TAG, "getArguments is null");
+        }
+
+        if (skipRetainInstance)
+            setRetainInstance(false);
+        else
+            setRetainInstance(true);
     }
 
     @Override

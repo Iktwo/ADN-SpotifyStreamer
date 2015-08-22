@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
@@ -23,10 +23,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class PlaybackFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
+public class PlaybackFragment extends DialogFragment {
     private static final String ARG_THUMBNAIL_URL = "thumbnail_url";
-    private static final String ARG_PARAM2 = "param2";
     private static final long PROGRESS_UPDATE_INTERNAL = 1000;
     private static final long PROGRESS_UPDATE_INITIAL_INTERVAL = 100;
     private static final String TAG = PlaybackFragment.class.getSimpleName();
@@ -50,20 +48,15 @@ public class PlaybackFragment extends Fragment {
         }
     };
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-    private OnPlaybackFragmentInteractionListener mListener;
+    private PlaybackFragmentInteractionListener mListener;
 
     public PlaybackFragment() {
     }
 
-    // TODO: Rename and change types and number of parameters
-    public static PlaybackFragment newInstance(String param1, String param2) {
+    public static PlaybackFragment newInstance(String thumbnailUrl) {
         PlaybackFragment fragment = new PlaybackFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_THUMBNAIL_URL, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(ARG_THUMBNAIL_URL, thumbnailUrl);
         fragment.setArguments(args);
         return fragment;
     }
@@ -72,8 +65,6 @@ public class PlaybackFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_THUMBNAIL_URL);
-            mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 
@@ -111,7 +102,6 @@ public class PlaybackFragment extends Fragment {
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                /// TODO: update text here
             }
 
             @Override
@@ -186,9 +176,9 @@ public class PlaybackFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mListener = (OnPlaybackFragmentInteractionListener) context;
+            mListener = (PlaybackFragmentInteractionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnFragmentInteractionListener");
+            throw new ClassCastException(context.toString() + " must implement " + PlaybackFragmentInteractionListener.class.getSimpleName());
         }
     }
 
@@ -282,8 +272,7 @@ public class PlaybackFragment extends Fragment {
         mLastPlaybackState = state;
     }
 
-    public interface OnPlaybackFragmentInteractionListener {
-        // TODO: Update argument type and name
+    public interface PlaybackFragmentInteractionListener {
         void onFragmentInteraction();
 
         void onNextClicked();

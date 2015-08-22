@@ -4,7 +4,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -12,7 +12,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity implements ArtistInteractionListener {
+import java.util.ArrayList;
+import java.util.List;
+
+import kaaes.spotify.webapi.android.models.Track;
+
+public class MainActivity extends AppCompatActivity implements ArtistInteractionListener, ArtistSongsFragment.ArtistSongFragmentInteractionListener {
     public static final String ARTIST_SONGS_ACTION = "com.iktwo.spotifystreamer.ARTIST_SONGS";
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -24,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements ArtistInteraction
 
     private TopTracksFragment mTopTracksFragment;
 
+    private String mArtistName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,28 +39,13 @@ public class MainActivity extends AppCompatActivity implements ArtistInteraction
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (findViewById(R.id.frame_layout_details) != null) {
-            /// TODO: implement two pane mode in stage 2
-             mTwoPane = true;
+        if (findViewById(R.id.frame_layout_details_container) != null) {
+            mTwoPane = true;
 
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            mTopTracksFragment = new TopTracksFragment();
-            fragmentManager.beginTransaction().replace(R.id.frame_layout_details, mTopTracksFragment).commit();
-
-            SearchResultsFragment mSearchResultsFragment = new SearchResultsFragment();
-            fragmentManager.beginTransaction().replace(R.id.frame_layout_search, mSearchResultsFragment, SEARCH_RESULTS_FRAGMENT_TAG).commit();
-
-            // In two-pane mode, list items should be given the
-            // 'activated' state when touched.
-            // ((ItemListFragment) getSupportFragmentManager()
-            // .findFragmentById(R.id.item_list))
-            // .setActivateOnItemClick(true);
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_details_container, TopTracksFragment.newInstance(true)).commit();
+        } else {
+            mTwoPane = false;
         }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
     }
 
     @Override
@@ -61,11 +53,10 @@ public class MainActivity extends AppCompatActivity implements ArtistInteraction
         super.onNewIntent(intent);
 
         if (mTwoPane) {
-            if (getSupportFragmentManager().findFragmentByTag(SEARCH_RESULTS_FRAGMENT_TAG) != null) {
-                SearchResultsFragment searchResultsFragment = (SearchResultsFragment) getSupportFragmentManager().findFragmentByTag(SEARCH_RESULTS_FRAGMENT_TAG);
+            if (getSupportFragmentManager().findFragmentById(R.id.fragment_search) != null) {
+                SearchResultsFragment searchResultsFragment = (SearchResultsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_search);
                 searchResultsFragment.search(intent.getStringExtra(SearchManager.QUERY));
             }
-            /// TODO: if dual pane, put results here, if single pane start searchReusltsActivity
         } else {
             if (intent.getAction().equals(Intent.ACTION_SEARCH)) {
                 Intent resultIntent = new Intent(this, SearchResultsActivity.class);
@@ -96,9 +87,29 @@ public class MainActivity extends AppCompatActivity implements ArtistInteraction
     }
 
     @Override
+    public void onSongClicked(Integer index, List<Track> songs) {
+        Log.d(TAG, "onSongClicked" + Integer.toString(index));
+        Intent resultIntent = new Intent(this, PlaybackActivity.class);
+        resultIntent.putExtra("displayAsDialog", true);
+
+
+        resultIntent.putExtra("artistName", mArtistName);
+        resultIntent.putExtra("index", index);
+        resultIntent.putParcelableArrayListExtra("songs", new ArrayList<Track>(songs));
+
+        startActivity(resultIntent);
+    }
+
+    @Override
     public void onArtistSelected(String artistId, String artistName) {
         if (mTwoPane) {
-            /// TODO: replace main fragment with the songs fragment
+            mArtistName = artistName;
+            ArtistSongsFragment artistSongsFragment = ArtistSongsFragment.newInstance(artistId, artistName, true);
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+            transaction.replace(R.id.frame_layout_details_container, artistSongsFragment);
+
+            transaction.commit();
         } else {
             Intent resultIntent = new Intent(this, ArtistSongsActivity.class);
             resultIntent.putExtra("artistId", artistId);

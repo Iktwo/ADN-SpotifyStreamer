@@ -168,7 +168,6 @@ public class MusicService extends Service implements MusicPlayback.Callback {
 
         PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder().setActions(getAvailableActions());
 
-        // setCustomAction(stateBuilder);
         int state = mMusicPlayback.getState();
 
         if (error != null) {
@@ -177,13 +176,6 @@ public class MusicService extends Service implements MusicPlayback.Callback {
         }
 
         stateBuilder.setState(state, position, 1.0f, SystemClock.elapsedRealtime());
-
-        // Set the activeQueueItemId if the current index is valid.
-        /// TODO: check this
-//        if (QueueHelper.isIndexPlayable(mCurrentIndexOnQueue, mPlaybackQueue)) {
-//            MediaSessionCompat.QueueItem item = mPlaybackQueue.get(mCurrentIndexOnQueue);
-//            stateBuilder.setActiveQueueItemId(item.getQueueId());
-//        }
 
         mSession.setPlaybackState(stateBuilder.build());
 
@@ -218,23 +210,18 @@ public class MusicService extends Service implements MusicPlayback.Callback {
     private void handleStopRequest(String withError) {
         Log.d(TAG, "handleStopRequest: mState=" + mMusicPlayback.getState() + " error=" + withError);
         mMusicPlayback.stop(true);
-        // reset the delayed stop handler.
+
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mDelayedStopHandler.sendEmptyMessageDelayed(0, STOP_DELAY);
 
         updatePlaybackState(withError);
 
-        // service is no longer necessary. Will be started again if needed.
         stopSelf();
         mServiceStarted = false;
     }
 
     private void updateMetadata() {
         MediaSessionCompat.QueueItem queueItem = mPlaybackQueue.get(mTrackIndex);
-        //String musicId = MediaIDHelper.extractMusicIDFromMediaID(queueItem.getDescription().getMediaId());
-        //MediaMetadataCompat track = mMusicProvider.getMusic(musicId);
-        //final String trackId = track.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
-        /// TODO: implement this
     }
 
     @Override
@@ -264,20 +251,16 @@ public class MusicService extends Service implements MusicPlayback.Callback {
 
     @Override
     public void onMetadataChanged(String mediaId) {
-        /// TODO: check this
         Log.d(TAG, "onMetadataChanged" + mediaId);
     }
 
-    /// TODO: check if we need to pass the index here
     public void playSong() {
-        // Track playSong = tracks.get(mTrackIndex);
         handlePlayRequest();
     }
 
     public void nextTrack() {
         mSession.getController().getTransportControls().seekTo(0);
 
-        /// TODO: check how not to repeat this
         mTrackIndex++;
 
         if (mPlaybackQueue != null && mTrackIndex >= mPlaybackQueue.size()) {
@@ -290,7 +273,6 @@ public class MusicService extends Service implements MusicPlayback.Callback {
     public void previousTrack() {
         mSession.getController().getTransportControls().seekTo(0);
 
-        /// TODO: check how not to repeat this
         mTrackIndex--;
         if (mPlaybackQueue != null && mTrackIndex < 0) {
             mTrackIndex = 0;
@@ -332,15 +314,12 @@ public class MusicService extends Service implements MusicPlayback.Callback {
 
             MediaSessionCompat.QueueItem q = new MediaSessionCompat.QueueItem(descriptionCompat, i);
             mPlaybackQueue.add(q);
-
-            // Log.d(TAG, "Item:" + Integer.toString(i) + " - " + tracks.get(i).name);
         }
 
         mSession.setQueue(mPlaybackQueue);
     }
 
     public void setSong(int trackIndex) {
-        /// TODO: Check what to do if paused
         mTrackIndex = trackIndex;
 
         if (mMusicPlayback.getState() == PlaybackStateCompat.STATE_PLAYING) {
@@ -535,5 +514,4 @@ public class MusicService extends Service implements MusicPlayback.Callback {
             Log.d(TAG, "playFromSearch  query=" + query + " extras=" + extras);
         }
     }
-
 }

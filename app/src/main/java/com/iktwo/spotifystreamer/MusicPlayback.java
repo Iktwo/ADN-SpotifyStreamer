@@ -69,7 +69,6 @@ public class MusicPlayback implements OnAudioFocusChangeListener, OnCompletionLi
         }
     };
 
-    // TODO: add , MusicProvider musicProvider
     public MusicPlayback(MusicService service) {
         this.mService = service;
         this.mAudioManager = (AudioManager) service.getSystemService(Context.AUDIO_SERVICE);
@@ -141,7 +140,6 @@ public class MusicPlayback implements OnAudioFocusChangeListener, OnCompletionLi
         this.mCurrentPosition = pos;
     }
 
-
     public void stop(boolean notifyListeners) {
         mState = PlaybackStateCompat.STATE_STOPPED;
         if (notifyListeners && mCallback != null) {
@@ -172,11 +170,6 @@ public class MusicPlayback implements OnAudioFocusChangeListener, OnCompletionLi
         } else {
             mState = PlaybackStateCompat.STATE_STOPPED;
             relaxResources(false);
-
-            /*MediaMetadataCompat track = mMusicProvider.getMusic(
-                    MediaIDHelper.extractMusicIDFromMediaID(item.getDescription().getMediaId()));
-
-            String source = track.getString(MusicProvider.CUSTOM_METADATA_TRACK_SOURCE); */
 
             String source = "";
             Uri mediaUri = item.getDescription().getMediaUri();
@@ -257,14 +250,12 @@ public class MusicPlayback implements OnAudioFocusChangeListener, OnCompletionLi
 
         mService.stopForeground(true);
 
-        // stop and release the Media Player, if it's available
         if (releaseMediaPlayer && mMediaPlayer != null) {
             mMediaPlayer.reset();
             mMediaPlayer.release();
             mMediaPlayer = null;
         }
 
-        // we can also release the Wifi lock, if we're holding it
         if (mWifiLock.isHeld()) {
             mWifiLock.release();
         }
@@ -281,13 +272,11 @@ public class MusicPlayback implements OnAudioFocusChangeListener, OnCompletionLi
 
     public void pause() {
         if (mState == PlaybackStateCompat.STATE_PLAYING) {
-            // Pause media player and cancel the 'foreground service' state.
             if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
                 mMediaPlayer.pause();
                 mCurrentPosition = mMediaPlayer.getCurrentPosition();
             }
 
-            // while paused, retain the MediaPlayer but give up audio focus
             relaxResources(false);
             giveUpAudioFocus();
         }
@@ -304,19 +293,18 @@ public class MusicPlayback implements OnAudioFocusChangeListener, OnCompletionLi
     private void configMediaPlayerState() {
         Log.d(TAG, "configMediaPlayerState. mAudioFocus=" + mAudioFocus);
         if (mAudioFocus == AUDIO_NO_FOCUS_NO_DUCK) {
-            // If we don't have audio focus and can't duck, we have to pause,
             if (mState == PlaybackStateCompat.STATE_PLAYING) {
                 pause();
             }
-        } else {  // we have audio focus:
+        } else {
             if (mAudioFocus == AUDIO_NO_FOCUS_CAN_DUCK) {
-                mMediaPlayer.setVolume(VOLUME_DUCK, VOLUME_DUCK); // we'll be relatively quiet
+                mMediaPlayer.setVolume(VOLUME_DUCK, VOLUME_DUCK);
             } else {
                 if (mMediaPlayer != null) {
-                    mMediaPlayer.setVolume(VOLUME_NORMAL, VOLUME_NORMAL); // we can be loud again
-                } // else do something for remote client.
+                    mMediaPlayer.setVolume(VOLUME_NORMAL, VOLUME_NORMAL);
+                }
             }
-            // If we were playing when we lost focus, we need to resume playing.
+
             if (mResumePlaybackOnFocusGain) {
                 if (mMediaPlayer != null && !mMediaPlayer.isPlaying()) {
                     Log.d(TAG, "configMediaPlayerState startMediaPlayer. seeking to " + mCurrentPosition);
