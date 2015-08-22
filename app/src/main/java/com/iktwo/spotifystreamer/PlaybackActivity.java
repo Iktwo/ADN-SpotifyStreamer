@@ -39,7 +39,7 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
 
             setPlaybackState(state.getState());
 
-            Log.d(TAG, "Received playback state change to state " + state.getState());
+            Log.d(TAG, "Received playback state change to state " + state.toString());
         }
 
         @Override
@@ -106,6 +106,14 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
 
         if (playbackFragment != null)
             playbackFragment.setPlaybackState(state);
+    }
+
+    public void setOldPlaybackState(PlaybackStateCompat state) {
+        PlaybackFragment playbackFragment = (PlaybackFragment) getSupportFragmentManager().findFragmentById(R.id.playback_fragment);
+
+        if (playbackFragment != null)
+            playbackFragment.setOldPlaybackState(state);
+
     }
 
     private void setMetadata(MediaMetadataCompat metadata) {

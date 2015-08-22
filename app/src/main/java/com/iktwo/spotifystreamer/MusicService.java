@@ -165,6 +165,10 @@ public class MusicService extends Service implements MusicPlayback.Callback {
         return mMusicPlayback.getState();
     }
 
+    public PlaybackStateCompat getPlaybackStateTest() {
+        return mSession.getController().getPlaybackState();
+    }
+
     private void updatePlaybackState(String error) {
         Log.d(TAG, "updatePlaybackState, playback state=" + mMusicPlayback.getState());
         long position = PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN;
@@ -461,6 +465,7 @@ public class MusicService extends Service implements MusicPlayback.Callback {
         @Override
         public void onSeekTo(long position) {
             Log.d(TAG, "onSeekTo:" + Long.toString(position));
+            mMusicPlayback.seekTo((int) position);
         }
 
         @Override

@@ -2,6 +2,8 @@ package com.iktwo.spotifystreamer;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -10,33 +12,44 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
 public class PlaybackFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_THUMBNAIL_URL = "thumbnail_url";
     private static final String ARG_PARAM2 = "param2";
-    ImageButton imageButtonPlayPause;
+    private static final long PROGRESS_UPDATE_INTERNAL = 1000;
+    private static final long PROGRESS_UPDATE_INITIAL_INTERVAL = 100;
+    private final ScheduledExecutorService mExecutorService = Executors.newSingleThreadScheduledExecutor();
+    private ImageButton mImageButtonPlayPause;
     private ImageView thumbnail;
+
+    private SeekBar mSeekBar;
+    private ScheduledFuture<?> mScheduleFuture;
+    private Handler mHandler = new Handler();
+
+    private PlaybackStateCompat mLastPlaybackState;
+    private final Runnable mUpdateProgressTask = new Runnable() {
+        @Override
+        public void run() {
+            updateProgress();
+        }
+    };
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
     private OnPlaybackFragmentInteractionListener mListener;
 
     public PlaybackFragment() {
-        // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment PlaybackFragment.
-     */
     // TODO: Rename and change types and number of parameters
     public static PlaybackFragment newInstance(String param1, String param2) {
         PlaybackFragment fragment = new PlaybackFragment();
@@ -56,10 +69,50 @@ public class PlaybackFragment extends Fragment {
         }
     }
 
+    private void stopSeekBarUpdate() {
+        if (mScheduleFuture != null) {
+            mScheduleFuture.cancel(false);
+        }
+    }
+
+    private void scheduleSeekbarUpdate() {
+        stopSeekBarUpdate();
+        if (!mExecutorService.isShutdown()) {
+            mScheduleFuture = mExecutorService.scheduleAtFixedRate(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            mHandler.post(mUpdateProgressTask);
+                        }
+                    }, PROGRESS_UPDATE_INITIAL_INTERVAL,
+                    PROGRESS_UPDATE_INTERNAL, TimeUnit.MILLISECONDS);
+        }
+    }
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_playback, container, false);
+
+        mSeekBar = (SeekBar) view.findViewById(R.id.seekBar);
+
+        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                /// TODO: update text here
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                stopSeekBarUpdate();
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         thumbnail = (ImageView) view.findViewById(R.id.image_view_thumbnail);
 
@@ -67,8 +120,8 @@ public class PlaybackFragment extends Fragment {
                 .load(R.drawable.placeholder_artist)
                 .into(thumbnail);
 
-        imageButtonPlayPause = (ImageButton) view.findViewById(R.id.button_playpause);
-        imageButtonPlayPause.setOnClickListener(new View.OnClickListener() {
+        mImageButtonPlayPause = (ImageButton) view.findViewById(R.id.button_playpause);
+        mImageButtonPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onButtonPressed();
@@ -92,7 +145,6 @@ public class PlaybackFragment extends Fragment {
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed() {
         if (mListener != null) {
             mListener.onFragmentInteraction();
@@ -135,10 +187,12 @@ public class PlaybackFragment extends Fragment {
     }
 
     public void setPlaybackState(int state) {
-        if (state == PlaybackStateCompat.STATE_PLAYING && imageButtonPlayPause != null)
-            imageButtonPlayPause.setImageResource(R.drawable.ic_pause_white);
-        else if (state == PlaybackStateCompat.STATE_PAUSED && imageButtonPlayPause != null)
-            imageButtonPlayPause.setImageResource(R.drawable.ic_play_arrow_white);
+        // mLastPlaybackState = state;
+
+        if (state == PlaybackStateCompat.STATE_PLAYING && mImageButtonPlayPause != null)
+            mImageButtonPlayPause.setImageResource(R.drawable.ic_pause_white);
+        else if (state == PlaybackStateCompat.STATE_PAUSED && mImageButtonPlayPause != null)
+            mImageButtonPlayPause.setImageResource(R.drawable.ic_play_arrow_white);
 
     }
 
@@ -149,6 +203,14 @@ public class PlaybackFragment extends Fragment {
                     .placeholder(R.drawable.placeholder_artist)
                     .into(thumbnail);
         }
+    }
+
+
+    private void updateProgress() {
+    }
+
+    public void setOldPlaybackState(PlaybackStateCompat state) {
+        mLastPlaybackState = state;
     }
 
     public interface OnPlaybackFragmentInteractionListener {
