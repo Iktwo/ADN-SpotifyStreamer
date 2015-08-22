@@ -7,12 +7,14 @@ import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -27,21 +29,27 @@ public class PlaybackFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private static final long PROGRESS_UPDATE_INTERNAL = 1000;
     private static final long PROGRESS_UPDATE_INITIAL_INTERVAL = 100;
+    private static final String TAG = PlaybackFragment.class.getSimpleName();
+
     private final ScheduledExecutorService mExecutorService = Executors.newSingleThreadScheduledExecutor();
+
+    private TextView mTextViewArtist;
+    private TextView mTextViewTrackName;
     private ImageButton mImageButtonPlayPause;
     private ImageView thumbnail;
-
     private SeekBar mSeekBar;
     private ScheduledFuture<?> mScheduleFuture;
     private Handler mHandler = new Handler();
 
     private PlaybackStateCompat mLastPlaybackState;
+
     private final Runnable mUpdateProgressTask = new Runnable() {
         @Override
         public void run() {
             updateProgress();
         }
     };
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -95,6 +103,9 @@ public class PlaybackFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_playback, container, false);
 
+        mTextViewTrackName = (TextView) view.findViewById(R.id.text_view_song_name);
+        mTextViewArtist = (TextView) view.findViewById(R.id.text_view_artist);
+
         mSeekBar = (SeekBar) view.findViewById(R.id.seekBar);
 
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -110,7 +121,7 @@ public class PlaybackFragment extends Fragment {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                onSeekTo(seekBar.getProgress());
             }
         });
 
@@ -163,6 +174,14 @@ public class PlaybackFragment extends Fragment {
         }
     }
 
+    public void onSeekTo(int position) {
+        if (mListener != null) {
+            mListener.onSeekTo(position);
+
+            scheduleSeekbarUpdate();
+        }
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -187,26 +206,76 @@ public class PlaybackFragment extends Fragment {
     }
 
     public void setPlaybackState(int state) {
-        // mLastPlaybackState = state;
+        switch (state) {
+            case PlaybackStateCompat.STATE_PLAYING:
+                if (mImageButtonPlayPause != null)
+                    mImageButtonPlayPause.setImageResource(R.drawable.ic_pause_white);
 
-        if (state == PlaybackStateCompat.STATE_PLAYING && mImageButtonPlayPause != null)
-            mImageButtonPlayPause.setImageResource(R.drawable.ic_pause_white);
-        else if (state == PlaybackStateCompat.STATE_PAUSED && mImageButtonPlayPause != null)
-            mImageButtonPlayPause.setImageResource(R.drawable.ic_play_arrow_white);
+                scheduleSeekbarUpdate();
+                break;
+            case PlaybackStateCompat.STATE_PAUSED:
+                if (mImageButtonPlayPause != null)
+                    mImageButtonPlayPause.setImageResource(R.drawable.ic_play_arrow_white);
 
+                stopSeekBarUpdate();
+                break;
+            case PlaybackStateCompat.STATE_NONE:
+            case PlaybackStateCompat.STATE_STOPPED:
+                stopSeekBarUpdate();
+                break;
+            case PlaybackStateCompat.STATE_BUFFERING:
+                stopSeekBarUpdate();
+                break;
+            default:
+                Log.d(TAG, "Unhandled state " + state);
+        }
     }
 
     public void setMetadata(MediaMetadataCompat metadata) {
+        Log.d(TAG, "setMetadata" + metadata.keySet().toString());
+
+        String string = "Bundle{";
+
+        for (String key : metadata.keySet()) {
+            string += " " + key + " - ";
+        }
+
+        Log.d(TAG, "BUNDLE metadata: " + string);
+
+        if (metadata.getDescription().getExtras() != null) {
+            Log.d(TAG, "SetMetadata: extras" + metadata.getDescription().getExtras().keySet().toString());
+        }
+
+        if (metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST) != null)
+            mTextViewArtist.setText(metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST));
+
+        if (metadata.getDescription().getTitle() != null)
+            mTextViewTrackName.setText(metadata.getDescription().getTitle());
+
         if (metadata.getDescription().getIconUri() != null) {
             Picasso.with(getActivity())
                     .load(metadata.getDescription().getIconUri())
                     .placeholder(R.drawable.placeholder_artist)
                     .into(thumbnail);
         }
+
+        mSeekBar.setMax(30000);
     }
 
-
     private void updateProgress() {
+        if (mLastPlaybackState == null) {
+            Log.w(TAG, "updateProgress mLastPlaybackState is null");
+            return;
+        }
+
+        long currentPosition = mLastPlaybackState.getPosition();
+
+        if (mLastPlaybackState.getState() != PlaybackStateCompat.STATE_PAUSED) {
+            long timeDelta = SystemClock.elapsedRealtime() - mLastPlaybackState.getLastPositionUpdateTime();
+            currentPosition += (int) timeDelta * mLastPlaybackState.getPlaybackSpeed();
+        }
+
+        mSeekBar.setProgress((int) currentPosition);
     }
 
     public void setOldPlaybackState(PlaybackStateCompat state) {
@@ -220,5 +289,7 @@ public class PlaybackFragment extends Fragment {
         void onNextClicked();
 
         void onPreviousClicked();
+
+        void onSeekTo(int progress);
     }
 }

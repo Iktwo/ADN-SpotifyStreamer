@@ -27,6 +27,7 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
     private int playbackIndex;
     private boolean musicServiceBound = false;
     private ArrayList<Track> tracks;
+    private String mArtistName;
 
     private MediaControllerCompat mMediaController;
 
@@ -38,6 +39,7 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
             }
 
             setPlaybackState(state.getState());
+            setOldPlaybackState(state);
 
             Log.d(TAG, "Received playback state change to state " + state.toString());
         }
@@ -62,11 +64,13 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
 
             musicService = binder.getService();
             musicService.setList(tracks);
+            musicService.setArtistName(mArtistName);
             musicServiceBound = true;
 
             if (musicService.getCurrentTrackIndex() != playbackIndex)
                 musicService.setSong(playbackIndex);
 
+            setOldPlaybackState(musicService.getPlaybackStateTest());
             setPlaybackState(musicService.getPlaybackState());
             connectToSession(musicService.getSessionToken());
         }
@@ -131,21 +135,22 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(getString(R.string.title_activity_playback) + " - " + getIntent().getStringExtra("artistName"));
+        mArtistName = getIntent().getStringExtra("artistName");
+
+        if (getSupportActionBar() != null && mArtistName != null) {
+            getSupportActionBar().setTitle(getString(R.string.title_activity_playback) + " - " + mArtistName);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         Intent intent = getIntent();
 
         if (intent != null) {
-            playbackIndex = intent.getIntExtra("index", -1);
+            playbackIndex = intent.getIntExtra("index", 0);
             tracks = intent.getParcelableArrayListExtra("songs");
 
             PlaybackFragment playbackFragment = (PlaybackFragment) getSupportFragmentManager().findFragmentById(R.id.playback_fragment);
 
-
-            if (tracks.size() > playbackIndex) {
+            if (tracks != null && tracks.size() > playbackIndex) {
                 Track t = tracks.get(playbackIndex);
                 if (!t.album.images.isEmpty())
                     playbackFragment.setTrackArt(t.album.images.get(0).url);
@@ -179,5 +184,10 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
     @Override
     public void onPreviousClicked() {
         musicService.previousTrack();
+    }
+
+    @Override
+    public void onSeekTo(int position) {
+        musicService.seekTo(position);
     }
 }

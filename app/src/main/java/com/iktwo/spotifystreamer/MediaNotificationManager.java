@@ -22,6 +22,10 @@ import android.util.Log;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import java.util.ArrayList;
+
+import kaaes.spotify.webapi.android.models.Track;
+
 public class MediaNotificationManager extends BroadcastReceiver {
     public static final String ACTION_PAUSE = "com.iktwo.spotifystreamer.pause";
     public static final String ACTION_PLAY = "com.iktwo.spotifystreamer.play";
@@ -52,7 +56,9 @@ public class MediaNotificationManager extends BroadcastReceiver {
     private Bitmap mAlbumArtBitmap;
 
     private NotificationCompat.Builder mNotificationBuilder;
-
+    private ArrayList<Track> mTracks;
+    private int mTrackIndex;
+    private String mArtistName;
     private Target albumArtTarget = new Target() {
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -70,7 +76,6 @@ public class MediaNotificationManager extends BroadcastReceiver {
         public void onPrepareLoad(Drawable placeHolderDrawable) {
         }
     };
-
     private final MediaControllerCompat.Callback mCb = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
@@ -276,6 +281,15 @@ public class MediaNotificationManager extends BroadcastReceiver {
     private PendingIntent createContentIntent(MediaDescriptionCompat description) {
         /// TODO: check this, might not work in dual pane mode
         Intent openUI = new Intent(mService, PlaybackActivity.class);
+
+        if (mTracks != null)
+            openUI.putParcelableArrayListExtra("songs", new ArrayList<Track>(mTracks));
+
+        openUI.putExtra("index", mTrackIndex);
+
+        if (mArtistName != null)
+            openUI.putExtra("artistName", mArtistName);
+
         openUI.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         return PendingIntent.getActivity(mService, REQUEST_CODE, openUI, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -309,18 +323,27 @@ public class MediaNotificationManager extends BroadcastReceiver {
 
     private void addPlayPauseAction(NotificationCompat.Builder builder) {
         Log.d(TAG, "updatePlayPauseAction");
-        String label;
-        int icon;
-        PendingIntent intent;
+
         if (mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
-            label = mService.getString(R.string.label_pause);
-            icon = R.drawable.ic_pause_white;
-            intent = mPauseIntent;
+            builder.addAction(new NotificationCompat.Action(R.drawable.ic_pause_white,
+                    mService.getString(R.string.label_pause),
+                    mPauseIntent));
         } else {
-            label = mService.getString(R.string.label_play);
-            icon = R.drawable.ic_play_arrow_white;
-            intent = mPlayIntent;
+            builder.addAction(new NotificationCompat.Action(R.drawable.ic_play_arrow_white,
+                    mService.getString(R.string.label_play)
+                    , mPlayIntent));
         }
-        builder.addAction(new NotificationCompat.Action(icon, label, intent));
+    }
+
+    public void setTrackList(ArrayList<Track> tracks) {
+        mTracks = tracks;
+    }
+
+    public void setTrackIndex(int trackIndex) {
+        mTrackIndex = trackIndex;
+    }
+
+    public void setArtistName(String artistName) {
+        mArtistName = artistName;
     }
 }

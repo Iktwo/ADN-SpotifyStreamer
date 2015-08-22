@@ -107,7 +107,8 @@ public class MusicPlayback implements OnAudioFocusChangeListener, OnCompletionLi
         if (mCallback != null) {
             mCallback.onError("MediaPlayer error " + what + " (" + extra + ")");
         }
-        return true; // true indicates we handled the error
+
+        return true;
     }
 
     @Override
@@ -352,6 +353,22 @@ public class MusicPlayback implements OnAudioFocusChangeListener, OnCompletionLi
         }
 
         configMediaPlayerState();
+    }
+
+    public void seekTo(int position) {
+        // Log.d(TAG, "onSeekTo" + Integer.toString(position));
+        if (mMediaPlayer == null) {
+            // If we do not have a current media player, simply update the current position
+            mCurrentPosition = position;
+        } else {
+            if (mMediaPlayer.isPlaying()) {
+                mState = PlaybackStateCompat.STATE_BUFFERING;
+            }
+            mMediaPlayer.seekTo(position);
+            if (mCallback != null) {
+                mCallback.onPlaybackStatusChanged(mState);
+            }
+        }
     }
 
     interface Callback {

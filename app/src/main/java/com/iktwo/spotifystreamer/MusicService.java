@@ -28,11 +28,6 @@ import java.util.List;
 import kaaes.spotify.webapi.android.models.Track;
 
 public class MusicService extends Service implements MusicPlayback.Callback {
-
-    public static final String ACTION_PLAY = "action_play";
-    public static final String ACTION_PAUSE = "action_pause";
-    public static final String ACTION_STOP = "action_stop";
-
     public static final String ACTION_CMD = "com.iktwo.spotifystreamer.ACTION_CMD";
     public static final String CMD = "CMD";
     public static final String CMD_PAUSE = "CMD_PAUSE";
@@ -58,6 +53,7 @@ public class MusicService extends Service implements MusicPlayback.Callback {
     private boolean mServiceStarted;
 
     private DelayedStopHandler mDelayedStopHandler = new DelayedStopHandler(this);
+    private String mArtistName;
 
     public MediaMetadataCompat getTrack(int index) {
         return mMetadataForTracks.get(index);
@@ -94,10 +90,6 @@ public class MusicService extends Service implements MusicPlayback.Callback {
         mMusicBinder = new MusicBinder();
         mMetadataForTracks = new ArrayList<>();
 
-        // Log.d(TAG, "STATE: when creating act" + Integer.toString(mMusicBinder.getService().getPlaybackState()));
-
-        // mMusicProvider = new MusicProvider();
-
         mEventReceiver = new ComponentName(getPackageName(), MediaButtonReceiver.class.getName());
 
         Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
@@ -118,11 +110,9 @@ public class MusicService extends Service implements MusicPlayback.Callback {
         mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
-        /// TODO: add provider mMusicProvider
         mMusicPlayback = new MusicPlayback(this);
         mMusicPlayback.setState(PlaybackStateCompat.STATE_NONE);
         mMusicPlayback.setCallback(this);
-
 
         mSessionExtras = new Bundle();
 
@@ -198,6 +188,9 @@ public class MusicService extends Service implements MusicPlayback.Callback {
         mSession.setPlaybackState(stateBuilder.build());
 
         if (state == PlaybackStateCompat.STATE_PLAYING || state == PlaybackStateCompat.STATE_PAUSED) {
+            mMediaNotificationManager.setTrackIndex(mTrackIndex);
+            mMediaNotificationManager.setTrackList(tracks);
+            mMediaNotificationManager.setArtistName(mArtistName);
             mMediaNotificationManager.startNotification();
         }
     }
@@ -246,7 +239,17 @@ public class MusicService extends Service implements MusicPlayback.Callback {
 
     @Override
     public void onCompletion() {
+        if (mPlaybackQueue != null && !mPlaybackQueue.isEmpty()) {
+            mSession.getController().getTransportControls().seekTo(0);
 
+            mTrackIndex++;
+            if (mTrackIndex >= mPlaybackQueue.size()) {
+                mTrackIndex = 0;
+            }
+            handlePlayRequest();
+        } else {
+            handleStopRequest(null);
+        }
     }
 
     @Override
@@ -272,6 +275,8 @@ public class MusicService extends Service implements MusicPlayback.Callback {
     }
 
     public void nextTrack() {
+        mSession.getController().getTransportControls().seekTo(0);
+
         /// TODO: check how not to repeat this
         mTrackIndex++;
 
@@ -283,6 +288,8 @@ public class MusicService extends Service implements MusicPlayback.Callback {
     }
 
     public void previousTrack() {
+        mSession.getController().getTransportControls().seekTo(0);
+
         /// TODO: check how not to repeat this
         mTrackIndex--;
         if (mPlaybackQueue != null && mTrackIndex < 0) {
@@ -305,6 +312,10 @@ public class MusicService extends Service implements MusicPlayback.Callback {
             MediaMetadataCompat.Builder b = new MediaMetadataCompat.Builder()
                     .putString(MediaMetadataCompat.METADATA_KEY_TITLE, t.name)
                     .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, t.album.name);
+
+            if (!t.artists.isEmpty()) {
+                b.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, t.artists.get(0).name);
+            }
 
             if (!t.album.images.isEmpty())
                 b.putString(MediaMetadataCompat.METADATA_KEY_ART_URI, t.album.images.get(0).url);
@@ -358,6 +369,15 @@ public class MusicService extends Service implements MusicPlayback.Callback {
         mMusicPlayback.pause();
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mDelayedStopHandler.sendEmptyMessageDelayed(0, STOP_DELAY);
+    }
+
+    public void setArtistName(String artistName) {
+        mArtistName = artistName;
+    }
+
+    public void seekTo(int position) {
+        //Log.d(TAG, "seekTo " + Integer.toString(position) + " - " + mSession.getController().getTransportControls());
+        mSession.getController().getTransportControls().seekTo(position);
     }
 
     private static class DelayedStopHandler extends Handler {
