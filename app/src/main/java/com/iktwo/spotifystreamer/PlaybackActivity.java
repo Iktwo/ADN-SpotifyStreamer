@@ -1,7 +1,9 @@
 package com.iktwo.spotifystreamer;
 
+import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
@@ -11,10 +13,14 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
@@ -132,6 +138,41 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
 
         if (playbackFragment != null)
             playbackFragment.setMetadata(metadata);
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_playback, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_share) {
+            Log.d(TAG, "Share");
+
+            String name = mMediaController.getMetadata().getText(MediaMetadataCompat.METADATA_KEY_TITLE).toString();
+            String url = tracks.get((int) mMediaController.getMetadata().getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)).preview_url;
+            Intent share = new Intent(android.content.Intent.ACTION_SEND);
+            share.setType("text/plain");
+            share.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+            share.putExtra(Intent.EXTRA_SUBJECT, name);
+            if (!name.isEmpty()) {
+                share.putExtra(Intent.EXTRA_TEXT, name + " - " + url + " via SpotifyStreamer");
+                startActivity(Intent.createChooser(share, "Share " + name));
+            } else {
+                share.putExtra(Intent.EXTRA_TEXT, url + " via Musicgear");
+                startActivity(Intent.createChooser(share, "Share this music"));
+            }
+
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

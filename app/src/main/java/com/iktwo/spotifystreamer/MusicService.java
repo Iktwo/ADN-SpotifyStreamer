@@ -293,7 +293,8 @@ public class MusicService extends Service implements MusicPlayback.Callback {
 
             MediaMetadataCompat.Builder b = new MediaMetadataCompat.Builder()
                     .putString(MediaMetadataCompat.METADATA_KEY_TITLE, t.name)
-                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, t.album.name);
+                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, t.album.name)
+                    .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, i);
 
             if (!t.artists.isEmpty()) {
                 b.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, t.artists.get(0).name);

@@ -20,6 +20,7 @@
     <string name="search_for_artist">Search for Artists</string>
     <string name="album_art_description">Album Art</string>
     <string name="action_country">Country Selection</string>
+    <string name="action_share">Share</string>
 
     <string-array name="available_countries">
         <item>AD</item>
