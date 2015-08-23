@@ -142,7 +142,7 @@ public class ArtistSongsFragment extends Fragment {
         SpotifyApi api = new SpotifyApi();
         SpotifyService spotify = api.getService();
 
-        spotify.getArtistTopTrack(artistId, "US", new Callback<Tracks>() {
+        spotify.getArtistTopTrack(artistId, CountryCode.country, new Callback<Tracks>() {
             @Override
             public void success(final Tracks tracks, Response response) {
                 for (int i = 0; i < tracks.tracks.size(); i++) {

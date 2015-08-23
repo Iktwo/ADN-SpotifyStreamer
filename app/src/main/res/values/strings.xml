@@ -4,8 +4,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="action_search">Search</string>
     <string name="artist_search_hint">Search by artist name</string>
     <string name="title_activity_search_results">SearchResultsActivity</string>
@@ -21,4 +19,68 @@
     <string name="label_pause">Pause</string>
     <string name="search_for_artist">Search for Artists</string>
     <string name="album_art_description">Album Art</string>
+    <string name="action_country">Country Selection</string>
+
+    <string-array name="available_countries">
+        <item>AD</item>
+        <item>AR</item>
+        <item>AT</item>
+        <item>AU</item>
+        <item>BE</item>
+        <item>BG</item>
+        <item>BO</item>
+        <item>BR</item>
+        <item>CA</item>
+        <item>CH</item>
+        <item>CL</item>
+        <item>CO</item>
+        <item>CR</item>
+        <item>CY</item>
+        <item>CZ</item>
+        <item>DE</item>
+        <item>DK</item>
+        <item>DO</item>
+        <item>EC</item>
+        <item>EE</item>
+        <item>ES</item>
+        <item>FI</item>
+        <item>FR</item>
+        <item>GB</item>
+        <item>GR</item>
+        <item>GT</item>
+        <item>HK</item>
+        <item>HN</item>
+        <item>HU</item>
+        <item>IE</item>
+        <item>IS</item>
+        <item>IT</item>
+        <item>LI</item>
+        <item>LT</item>
+        <item>LU</item>
+        <item>LV</item>
+        <item>MC</item>
+        <item>MT</item>
+        <item>MX</item>
+        <item>MY</item>
+        <item>NI</item>
+        <item>NL</item>
+        <item>NO</item>
+        <item>NZ</item>
+        <item>PA</item>
+        <item>PE</item>
+        <item>PH</item>
+        <item>PL</item>
+        <item>PT</item>
+        <item>PY</item>
+        <item>RO</item>
+        <item>SE</item>
+        <item>SG</item>
+        <item>SI</item>
+        <item>SK</item>
+        <item>SV</item>
+        <item>TR</item>
+        <item>TW</item>
+        <item>US</item>
+        <item>UY</item>
+    </string-array>
 </resources>

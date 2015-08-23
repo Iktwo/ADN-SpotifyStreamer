@@ -2,9 +2,11 @@ package com.iktwo.spotifystreamer;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -82,6 +84,24 @@ public class MainActivity extends AppCompatActivity implements ArtistInteraction
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+
+        if (id == R.id.action_country_selection) {
+            AlertDialog.Builder b = new AlertDialog.Builder(this);
+            b.setTitle(getString(R.string.action_country));
+            final String[] types = getResources().getStringArray(R.array.available_countries);
+            b.setItems(types, new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    CountryCode.country = types[which];
+                }
+            });
+
+            b.show();
+
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
