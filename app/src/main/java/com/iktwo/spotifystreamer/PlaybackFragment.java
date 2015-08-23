@@ -33,6 +33,8 @@ public class PlaybackFragment extends DialogFragment {
 
     private TextView mTextViewArtist;
     private TextView mTextViewTrackName;
+    private TextView mTextViewElapsedTime;
+    private TextView mTextViewDuration;
     private ImageButton mImageButtonPlayPause;
     private ImageView thumbnail;
     private SeekBar mSeekBar;
@@ -88,7 +90,6 @@ public class PlaybackFragment extends DialogFragment {
         }
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -96,6 +97,9 @@ public class PlaybackFragment extends DialogFragment {
 
         mTextViewTrackName = (TextView) view.findViewById(R.id.text_view_song_name);
         mTextViewArtist = (TextView) view.findViewById(R.id.text_view_artist);
+        mTextViewElapsedTime = (TextView) view.findViewById(R.id.text_view_elapsed);
+        mTextViewDuration = (TextView) view.findViewById(R.id.text_view_duration);
+        mTextViewElapsedTime.setText(formatMillis(0));
 
         mSeekBar = (SeekBar) view.findViewById(R.id.seekBar);
 
@@ -250,6 +254,16 @@ public class PlaybackFragment extends DialogFragment {
         }
 
         mSeekBar.setMax(30000);
+        mTextViewDuration.setText(formatMillis(30000));
+    }
+
+    private String formatMillis(int millis) {
+        return String.format("%02d:%02d:%02d",
+                TimeUnit.MILLISECONDS.toHours(millis),
+                TimeUnit.MILLISECONDS.toMinutes(millis) -
+                        TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)), // The change is in this line
+                TimeUnit.MILLISECONDS.toSeconds(millis) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
     }
 
     private void updateProgress() {
@@ -266,6 +280,7 @@ public class PlaybackFragment extends DialogFragment {
         }
 
         mSeekBar.setProgress((int) currentPosition);
+        mTextViewElapsedTime.setText(formatMillis((int) currentPosition));
     }
 
     public void setOldPlaybackState(PlaybackStateCompat state) {

@@ -69,12 +69,17 @@ public class PlaybackActivity extends AppCompatActivity implements PlaybackFragm
             musicService.setArtistName(mArtistName);
             musicServiceBound = true;
 
+            if (musicService.getPlaybackState() == PlaybackStateCompat.STATE_NONE)
+                musicService.playSong();
+
             if (musicService.getCurrentTrackIndex() != playbackIndex)
                 musicService.setSong(playbackIndex);
 
             setOldPlaybackState(musicService.getPlaybackStateTest());
             setPlaybackState(musicService.getPlaybackState());
             connectToSession(musicService.getSessionToken());
+
+            setMetadata(musicService.getSession().getController().getMetadata());
         }
 
         @Override
