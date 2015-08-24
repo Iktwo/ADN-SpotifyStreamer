@@ -31,6 +31,9 @@ public class MediaNotificationManager extends BroadcastReceiver {
     public static final String ACTION_PLAY = "com.iktwo.spotifystreamer.play";
     public static final String ACTION_PREV = "com.iktwo.spotifystreamer.prev";
     public static final String ACTION_NEXT = "com.iktwo.spotifystreamer.next";
+
+    public static boolean notificationEnabled = true;
+
     private static final String TAG = MediaNotificationManager.class.getSimpleName();
     private static final int NOTIFICATION_ID = 8;
     private static final int REQUEST_CODE = 100;
@@ -59,13 +62,16 @@ public class MediaNotificationManager extends BroadcastReceiver {
     private ArrayList<Track> mTracks;
     private int mTrackIndex;
     private String mArtistName;
+
     private Target albumArtTarget = new Target() {
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
             Log.d(TAG, "onBitmapLoaded");
 
             mAlbumArtBitmap = bitmap;
-            mNotificationManager.notify(NOTIFICATION_ID, createNotification());
+
+            if (notificationEnabled)
+                mNotificationManager.notify(NOTIFICATION_ID, createNotification());
         }
 
         @Override
@@ -87,7 +93,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
             } else {
                 Notification notification = createNotification();
 
-                if (notification != null)
+                if (notification != null && notificationEnabled)
                     mNotificationManager.notify(NOTIFICATION_ID, notification);
             }
         }
@@ -98,7 +104,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
             mMetadata = metadata;
             Notification notification = createNotification();
 
-            if (notification != null)
+            if (notification != null && notificationEnabled)
                 mNotificationManager.notify(NOTIFICATION_ID, notification);
         }
 

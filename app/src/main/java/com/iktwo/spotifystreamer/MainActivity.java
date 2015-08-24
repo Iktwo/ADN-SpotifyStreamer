@@ -13,6 +13,17 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.CompoundButton;
+
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.interfaces.OnCheckedChangeListener;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SwitchDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +59,35 @@ public class MainActivity extends AppCompatActivity implements ArtistInteraction
         } else {
             mTwoPane = false;
         }
+
+        SwitchDrawerItem itemS = new SwitchDrawerItem()
+                .withName(R.string.toggle_notification)
+                .withChecked(true)
+                .withIdentifier(1)
+                .withOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(IDrawerItem iDrawerItem, CompoundButton compoundButton, boolean b) {
+                MediaNotificationManager.notificationEnabled = b;
+            }
+        });
+
+        Drawer result = new DrawerBuilder()
+                .withActivity(this)
+                .withToolbar(toolbar)
+                .addDrawerItems(
+                        itemS
+                )
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        if (drawerItem.getIdentifier() == 1) {
+                            Log.d(TAG, "Switched" + ((SwitchDrawerItem) drawerItem));
+                        }
+
+                        return true;
+                    }
+                })
+                .build();
     }
 
     @Override

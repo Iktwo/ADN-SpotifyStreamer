@@ -183,7 +183,9 @@ public class MusicService extends Service implements MusicPlayback.Callback {
             mMediaNotificationManager.setTrackIndex(mTrackIndex);
             mMediaNotificationManager.setTrackList(tracks);
             mMediaNotificationManager.setArtistName(mArtistName);
-            mMediaNotificationManager.startNotification();
+
+            if (MediaNotificationManager.notificationEnabled)
+                mMediaNotificationManager.startNotification();
         }
     }
 

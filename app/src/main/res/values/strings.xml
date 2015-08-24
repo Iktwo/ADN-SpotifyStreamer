@@ -21,6 +21,7 @@
     <string name="album_art_description">Album Art</string>
     <string name="action_country">Country Selection</string>
     <string name="action_share">Share</string>
+    <string name="toggle_notification">Notification</string>
 
     <string-array name="available_countries">
         <item>AD</item>
